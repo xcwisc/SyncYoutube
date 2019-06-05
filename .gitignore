@@ -3,3 +3,4 @@ env
 htmlcov
 .vscode
 .DS_Store
+migrations

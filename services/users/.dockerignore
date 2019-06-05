@@ -5,3 +5,4 @@ Dockerfile-prod
 htmlcov
 .vscode
 .DS_Store
+migrations
