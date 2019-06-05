@@ -56,8 +56,14 @@ def cov():
 @cli.command('seed_db')
 def seed_db():
     """Seeds the database."""
-    db.session.add(User(username='bot1', email="bot1@botland.com"))
-    db.session.add(User(username='bot2', email="bot2@botland.com"))
+    db.session.add(
+        User(username='bot1',
+             email='bot1@botland.com',
+             password='greaterthaneight'))
+    db.session.add(
+        User(username='bot2',
+             email='bot2@botland.com',
+             password='greaterthaneight'))
     db.session.commit()
 
 

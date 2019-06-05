@@ -11,36 +11,63 @@ from sqlalchemy.exc import IntegrityError
 class TestUserModel(BaseTestCase):
     def test_add_user(self):
         user = add_user(username='justatest',
-                        email='test@test.com')
+                        email='test@test.com',
+                        password='greaterthaneight')
         self.assertTrue(user.id)
         self.assertEqual(user.username, 'justatest')
         self.assertEqual(user.email, 'test@test.com')
         self.assertTrue(user.active)
+        self.assertTrue(user.password)
 
     def test_add_duplicate_username(self):
         add_user(username='justatest',
-                 email='test@test.com')
+                 email='test@test.com',
+                 password='greaterthaneight')
         duplicate_user = User(
             username='justatest',
             email='test1@test.com',
+            password='greaterthaneight'
         )
         db.session.add(duplicate_user)
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_add_duplicate_email(self):
         add_user(username='justatest',
-                 email='test@test.com')
+                 email='test@test.com',
+                 password='greaterthaneight')
         duplicate_user = User(
             username='justatest1',
             email='test@test.com',
+            password='greaterthaneight'
         )
         db.session.add(duplicate_user)
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_to_json(self):
         user = add_user(username='justatest',
-                        email='test@test.com')
+                        email='test@test.com',
+                        password='greaterthaneight')
         self.assertTrue(isinstance(user.to_json(), dict))
+
+    def test_passwords_are_random(self):
+        user_one = add_user('justatest', 'test@test.com', 'greaterthaneight')
+        user_two = add_user('justatest2', 'test@test2.com', 'greaterthaneight')
+        self.assertNotEqual(user_one.password, user_two.password)
+
+    def test_encoded_auth_token(self):
+        user = add_user('justatest', 'test@test.com', 'greaterthaneight')
+        auth_token = user.encode_auth_token(user.id)
+        # import logging
+        # logging.basicConfig()
+        # log = logging.getLogger("LOG")
+        # log.warning()
+        self.assertTrue(isinstance(auth_token, bytes))
+
+    def test_decoded_auth_token(self):
+        user = add_user('justatest', 'test@test.com', 'greaterthaneight')
+        auth_token = user.encode_auth_token(user.id)
+        self.assertTrue(isinstance(auth_token, bytes))
+        self.assertEqual(User.decode_auth_token(auth_token), user.id)
 
 
 if __name__ == '__main__':
