@@ -17,6 +17,20 @@ exports[`Navbar renders a snapshot properly 1`] = `
       >
         Hello, World!
       </strong>
+      <span
+        className="navbar-toggle navbar-burger"
+        onClick={[Function]}
+      >
+        <span
+          aria-hidden="true"
+        />
+        <span
+          aria-hidden="true"
+        />
+        <span
+          aria-hidden="true"
+        />
+      </span>
     </div>
     <div
       className="navbar-menu"

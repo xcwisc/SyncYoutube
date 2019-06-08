@@ -6,6 +6,19 @@ const Navbar = (props) => (
     <section className="container">
       <div className="navbar-brand">
         <strong className="navbar-item">{props.title}</strong>
+        <span
+          className="navbar-toggle navbar-burger"
+          onClick={() => {
+            const toggle = document.querySelector(".navbar-toggle");
+            const menu = document.querySelector(".navbar-menu");
+            toggle.classList.toggle("is-active");
+            menu.classList.toggle("is-active");
+          }}
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </span>
       </div>
       <div className="navbar-menu">
         <div className="navbar-start">
