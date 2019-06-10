@@ -1,14 +1,8 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, simulate } from 'enzyme';
 import renderer from 'react-test-renderer';
 
 import Form from '../Form';
-
-// const formData = {
-//   username: '',
-//   email: '',
-//   password: ''
-// }
 
 const testData = [
   {
@@ -17,68 +11,65 @@ const testData = [
       username: '',
       email: '',
       password: ''
-    }
+    },
+    handleUserFormSubmit: jest.fn(),
+    handleFormChange: jest.fn(),
+    isAuthenticated: false,
   },
   {
     formType: 'Login',
     formData: {
       email: '',
       password: ''
-    }
-  },
-];
+    },
+    handleUserFormSubmit: jest.fn(),
+    handleFormChange: jest.fn(),
+    isAuthenticated: false,
+  }
+]
 
-testData.forEach((data) => {
-  test(`Ensure ${data.formType} Form renders properly`, () => {
-    const component = <Form formType={data.formType} formData={data.formData} />;
-    const wrapper = shallow(component);
-    const h1 = wrapper.find('h1');
-    expect(h1.length).toBe(1);
-    expect(h1.get(0).props.children).toBe(data.formType);
-    const formFields = wrapper.find('.field');
-    expect(formFields.length).toBe(Object.keys(data.formData).length);
-    expect(formFields.get(0).props.children.props.name).toBe(Object.keys(data.formData)[0]);
-    expect(formFields.get(0).props.children.props.value).toBe('');
+describe('When not authenticated', () => {
+  testData.forEach((el) => {
+    const component = <Form {...el} />;
+    it(`${el.formType} Form renders properly`, () => {
+      const wrapper = shallow(component);
+      const h1 = wrapper.find('h1');
+      expect(h1.length).toBe(1);
+      expect(h1.get(0).props.children).toBe(el.formType);
+      const formGroup = wrapper.find('.field');
+      expect(formGroup.length).toBe(Object.keys(el.formData).length);
+      expect(formGroup.get(0).props.children.props.name).toBe(
+        Object.keys(el.formData)[0]);
+      expect(formGroup.get(0).props.children.props.value).toBe('');
+    });
+    it(`${el.formType} Form submits the form properly`, () => {
+      const wrapper = shallow(component);
+      const input = wrapper.find('input[name="email"]');
+      expect(el.handleUserFormSubmit).toHaveBeenCalledTimes(0);
+      expect(el.handleFormChange).toHaveBeenCalledTimes(0);
+      input.simulate('change')
+      expect(el.handleFormChange).toHaveBeenCalledTimes(1);
+      wrapper.find('form').simulate('submit', el.formData);
+      expect(el.handleUserFormSubmit).toHaveBeenCalledWith(el.formData);
+      expect(el.handleUserFormSubmit).toHaveBeenCalledTimes(1);
+    });
+    it(`${el.formType} Form renders a snapshot properly`, () => {
+      const tree = renderer.create(component).toJSON();
+      expect(tree).toMatchSnapshot();
+    });
   });
+});
 
-  test(`${data.formType} form renders a snapshot properly`, () => {
-    const component = <Form formType={data.formType} formData={data.formData} />;
-    const tree = renderer.create(component).toJSON();
-    expect(tree).toMatchSnapshot();
-  });
-})
-// test('Ensure register Form renders properly', () => {
-//   const component = <Form formType={'Register'} formData={formData} />;
-//   const wrapper = shallow(component);
-//   const h1 = wrapper.find('h1');
-//   expect(h1.length).toBe(1);
-//   expect(h1.get(0).props.children).toBe('Register');
-//   const formFields = wrapper.find('.field');
-//   expect(formFields.length).toBe(3);
-//   expect(formFields.get(0).props.children.props.name).toBe('username');
-//   expect(formFields.get(0).props.children.props.value).toBe('');
-// });
-
-// test('Ensure Login Form renders properly', () => {
-//   const component = <Form formType={'Login'} formData={formData} />;
-//   const wrapper = shallow(component);
-//   const h1 = wrapper.find('h1');
-//   expect(h1.length).toBe(1);
-//   expect(h1.get(0).props.children).toBe('Login');
-//   const formFields = wrapper.find('.field');
-//   expect(formFields.length).toBe(2);
-//   expect(formFields.get(0).props.children.props.name).toBe('email');
-//   expect(formFields.get(0).props.children.props.value).toBe('');
-// });
-
-// test('register form renders a snapshot properly', () => {
-//   const component = <Form formType={'Register'} formData={formData} />;
-//   const tree = renderer.create(component).toJSON();
-//   expect(tree).toMatchSnapshot();
-// });
-
-// test('login form renders a snapshot properly', () => {
-//   const component = <Form formType={'Login'} formData={formData} />;
-//   const tree = renderer.create(component).toJSON();
-//   expect(tree).toMatchSnapshot();
-// });
+describe('When authenticated', () => {
+  testData.forEach((el) => {
+    const component = <Form
+      formType={el.formType}
+      formData={el.formData}
+      isAuthenticated={true}
+    />;
+    it(`${el.formType} redirects properly`, () => {
+      const wrapper = shallow(component);
+      expect(wrapper.find('Redirect')).toHaveLength(1);
+    });
+  })
+});

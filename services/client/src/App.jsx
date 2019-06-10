@@ -34,13 +34,14 @@ class App extends Component {
   componentDidMount() {
     this.getUsers();
   }
-
+  // get all the users and update the user list
   getUsers() {
     axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
       .then((res) => { this.setState({ users: res.data.data.users }); })
       .catch((err) => { console.log(err); });
   }
 
+  // clear all the state related to the form
   clearFormState() {
     this.setState({
       formData: { username: '', email: '', password: '' },
@@ -49,6 +50,7 @@ class App extends Component {
     });
   };
 
+  // add a user at the home route
   addUser(event) {
     event.preventDefault();
     const data = {
@@ -65,12 +67,14 @@ class App extends Component {
       .catch((err) => console.log(err));
   }
 
+  // bind the form with state on the main route that add a user
   handleAddUserFormInput(event) {
     const newState = {};
     newState[event.target.name] = event.target.value;
     this.setState(newState);
   }
 
+  // bind the form with state on '/register' and '/login'
   handleFormChange(event) {
     const newState = this.state.formData;
     newState[event.target.name] = event.target.value;
@@ -78,6 +82,7 @@ class App extends Component {
     // console.log(this.state.formData);
   }
 
+  // handle submit on the form in '/register' and '/login'
   handleUserFormSubmit(event) {
     event.preventDefault();
     const formType = window.location.href.split('/').reverse()[0];
@@ -100,6 +105,7 @@ class App extends Component {
     });
   }
 
+  // handle '/logout'
   logoutUser() {
     window.localStorage.clear();
     this.setState({ isAuthenticated: false });
