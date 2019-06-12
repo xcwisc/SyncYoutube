@@ -18,6 +18,7 @@ class TestUserModel(BaseTestCase):
         self.assertEqual(user.email, 'test@test.com')
         self.assertTrue(user.active)
         self.assertTrue(user.password)
+        self.assertFalse(user.admin)
 
     def test_add_duplicate_username(self):
         add_user(username='justatest',
@@ -57,10 +58,6 @@ class TestUserModel(BaseTestCase):
     def test_encoded_auth_token(self):
         user = add_user('justatest', 'test@test.com', 'greaterthaneight')
         auth_token = user.encode_auth_token(user.id)
-        # import logging
-        # logging.basicConfig()
-        # log = logging.getLogger("LOG")
-        # log.warning()
         self.assertTrue(isinstance(auth_token, bytes))
 
     def test_decoded_auth_token(self):

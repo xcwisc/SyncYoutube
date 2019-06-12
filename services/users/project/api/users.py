@@ -3,7 +3,7 @@ from sqlalchemy import exc
 
 from project.api.models import User
 from project import db
-from project.api.utils import authenticate
+from project.api.utils import authenticate, is_admin
 
 users_blueprint = Blueprint('users', __name__, template_folder='./templates')
 
@@ -48,6 +48,9 @@ def add_user(resp):
         'status': 'fail',
         'message': 'Invalid payload.'
     }
+    if not is_admin(resp):
+        response_object['message'] = 'You do not have permission to do that.'
+        return jsonify(response_object), 401
     if not post_data:
         return jsonify(response_object), 400
     username = post_data.get('username')
