@@ -37,7 +37,7 @@ class User(db.Model):
             'admin': self.admin
         }
 
-    def encode_auth_token(self, user_id):  # new
+    def encode_auth_token(self, user_id):
         """Generates the auth token"""
         try:
             days = current_app.config.get('TOKEN_EXPIRATION_DAYS')

@@ -8,7 +8,9 @@ class UserStatus extends Component {
     this.state = {
       email: '',
       username: '',
-      id: ''
+      id: '',
+      admin: '',
+      active: ''
     }
   }
 
@@ -33,6 +35,8 @@ class UserStatus extends Component {
           email: res.data.data.email,
           id: res.data.data.id,
           username: res.data.data.username,
+          admin: res.data.data.admin.toString(),
+          active: res.data.data.active.toString(),
         })
         console.log(res.data.data);
       })
@@ -51,6 +55,8 @@ class UserStatus extends Component {
           <li><strong>User ID:</strong> {this.state.id}</li>
           <li><strong>Email:</strong> {this.state.email}</li>
           <li><strong>Username:</strong> {this.state.username}</li>
+          <li><strong>Admin:</strong> {this.state.admin}</li>
+          <li><strong>Active:</strong> {this.state.active}</li>
         </ul>
       </div>
     )
