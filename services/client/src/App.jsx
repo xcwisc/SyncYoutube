@@ -9,27 +9,38 @@ import Navbar from './components/Navbar';
 import Form from './components/Form';
 import Logout from './components/Logout';
 import UserStatus from './components/UserStatus';
+import JoinForm from './components/JoinForm';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      users: [],
-      username: '',
-      email: '',
       title: 'TestDriven',
+      users: [],
+      userInfo: {
+        username: '',
+        email: '',
+        id: '',
+        admin: '',
+        active: '',
+      },
       formData: {
         username: '',
         email: '',
         password: ''
       },
+      roomInfo: {
+        roomName: '',
+        displayName: '',
+      },
       isAuthenticated: false,
     };
-    this.addUser = this.addUser.bind(this);
-    this.handleAddUserFormInput = this.handleAddUserFormInput.bind(this);
+    // this.addUser = this.addUser.bind(this);
+    // this.handleAddUserFormInput = this.handleAddUserFormInput.bind(this);
     this.handleUserFormSubmit = this.handleUserFormSubmit.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
     this.logoutUser = this.logoutUser.bind(this);
+    this.handleJoinFormChange = this.handleJoinFormChange.bind(this);
   }
 
   componentDidMount() {
@@ -39,6 +50,32 @@ class App extends Component {
   getUsers() {
     axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
       .then((res) => { this.setState({ users: res.data.data.users }); })
+      .catch((err) => { console.log(err); });
+  }
+
+  // get a logedin user's info
+  getUserStatus() {
+    const option = {
+      url: `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${window.localStorage.authToken}`
+      }
+    }
+    return axios(option)
+      .then((res) => {
+        this.setState({
+          userInfo: {
+            email: res.data.data.email,
+            id: res.data.data.id,
+            username: res.data.data.username,
+            admin: res.data.data.admin.toString(),
+            active: res.data.data.active.toString(),
+          }
+        })
+        console.log(res.data.data);
+      })
       .catch((err) => { console.log(err); });
   }
 
@@ -52,32 +89,40 @@ class App extends Component {
   };
 
   // add a user at the home route
-  addUser(event) {
-    event.preventDefault();
-    const data = {
-      username: this.state.username,
-      email: this.state.email
-    };
-    axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
-      .then((res) => {
-        // update the userList
-        this.getUsers();
-        // clear out the form
-        this.setState({ username: '', email: '' });
-      })
-      .catch((err) => console.log(err));
-  }
+  // addUser(event) {
+  //   event.preventDefault();
+  //   const data = {
+  //     username: this.state.username,
+  //     email: this.state.email
+  //   };
+  //   axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
+  //     .then((res) => {
+  //       // update the userList
+  //       this.getUsers();
+  //       // clear out the form
+  //       this.setState({ username: '', email: '' });
+  //     })
+  //     .catch((err) => console.log(err));
+  // }
 
   // bind the form with state on the main route that add a user
-  handleAddUserFormInput(event) {
-    const newState = {};
-    newState[event.target.name] = event.target.value;
-    this.setState(newState);
-  }
+  // handleAddUserFormInput(event) {
+  //   const newState = {};
+  //   newState[event.target.name] = event.target.value;
+  //   this.setState(newState);
+  // }
 
   // bind the form with state on '/register' and '/login'
   handleFormChange(event) {
     const newState = this.state.formData;
+    newState[event.target.name] = event.target.value;
+    this.setState(newState);
+    // console.log(this.state.formData);
+  }
+
+  // bind the form with state on '/join'
+  handleJoinFormChange(event) {
+    const newState = this.state.roomInfo;
     newState[event.target.name] = event.target.value;
     this.setState(newState);
     // console.log(this.state.formData);
@@ -99,6 +144,7 @@ class App extends Component {
       this.clearFormState();
       window.localStorage.setItem('authToken', res.data.auth_token);
       this.setState({ isAuthenticated: true });
+      this.getUserStatus();
       this.getUsers();
       console.log(res.data);
     }).catch((err) => {
@@ -109,7 +155,16 @@ class App extends Component {
   // handle '/logout'
   logoutUser() {
     window.localStorage.clear();
-    this.setState({ isAuthenticated: false });
+    this.setState({
+      isAuthenticated: false,
+      userInfo: {
+        username: '',
+        email: '',
+        id: '',
+        admin: '',
+        active: '',
+      },
+    });
   }
 
   render() {
@@ -152,8 +207,22 @@ class App extends Component {
                     />
                   )} />
                   <Route exact path='/status' render={() => (
-                    <UserStatus isAuthenticated={this.state.isAuthenticated} />
+                    <UserStatus
+                      isAuthenticated={this.state.isAuthenticated}
+                      userInfo={this.state.userInfo}
+                    />
                   )} />
+                  <Route exact path='/join' render={() => (
+                    <JoinForm
+                      isAuthenticated={this.state.isAuthenticated}
+                      username={this.state.userInfo.username}
+                      roomName={this.state.roomInfo.roomName}
+                      displayName={this.state.roomInfo.displayName}
+                      handleJoinFormChange={this.handleJoinFormChange}
+                    />
+                  )} />
+                  {/* <Route exact path='/room' render={() =>
+                    ()} /> */}
                 </Switch>
               </div>
             </div>
