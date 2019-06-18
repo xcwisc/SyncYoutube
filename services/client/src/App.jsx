@@ -10,6 +10,7 @@ import Form from './components/Form';
 import Logout from './components/Logout';
 import UserStatus from './components/UserStatus';
 import JoinForm from './components/JoinForm';
+import Room from './components/Room';
 
 class App extends Component {
   constructor() {
@@ -32,6 +33,7 @@ class App extends Component {
       roomInfo: {
         roomName: '',
         displayName: '',
+        redirectToRoom: false,
       },
       isAuthenticated: false,
     };
@@ -41,6 +43,7 @@ class App extends Component {
     this.handleFormChange = this.handleFormChange.bind(this);
     this.logoutUser = this.logoutUser.bind(this);
     this.handleJoinFormChange = this.handleJoinFormChange.bind(this);
+    this.handleJoinFormSubmit = this.handleJoinFormSubmit.bind(this);
   }
 
   componentDidMount() {
@@ -152,6 +155,13 @@ class App extends Component {
     });
   }
 
+  handleJoinFormSubmit(event) {
+    event.preventDefault();
+    const newState = this.state.roomInfo;
+    newState.redirectToRoom = true;
+    this.setState(newState);
+  }
+
   // handle '/logout'
   logoutUser() {
     window.localStorage.clear();
@@ -218,11 +228,16 @@ class App extends Component {
                       username={this.state.userInfo.username}
                       roomName={this.state.roomInfo.roomName}
                       displayName={this.state.roomInfo.displayName}
+                      redirectToRoom={this.state.roomInfo.redirectToRoom}
                       handleJoinFormChange={this.handleJoinFormChange}
+                      handleJoinFormSubmit={this.handleJoinFormSubmit}
                     />
                   )} />
-                  {/* <Route exact path='/room' render={() =>
-                    ()} /> */}
+                  <Route exact path='/room' render={() =>
+                    (<Room
+                      isAuthenticated={this.state.isAuthenticated}
+                      roomName={this.state.roomInfo.roomName}
+                    />)} />
                 </Switch>
               </div>
             </div>

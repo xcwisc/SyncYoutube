@@ -5,6 +5,9 @@ const JoinForm = (props) => {
   if (!props.isAuthenticated) {
     return <Redirect to='/login' />
   }
+  if (props.redirectToRoom) {
+    return <Redirect to='/room' />
+  }
   return (
     <div>
       <h1 className='title is-1'>Join a room</h1>
