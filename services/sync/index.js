@@ -13,7 +13,7 @@ const io = require('socket.io')(server);
 
 let curRoomList = {};
 
-io.of('/sync').on('connection', (socket) => {
+io.on('connection', (socket) => {
   console.log('A user connected');
 
   // socket.on('join room', (room) => {

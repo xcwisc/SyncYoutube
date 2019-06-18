@@ -8,17 +8,17 @@ class Logout extends Component {
   };
 
   makeSocketConnection() {
-    const nsp = io('/sync');
-    nsp.on('connect_failed', () => {
+    const socket = io();
+    socket.on('connect_failed', () => {
       console.log('Connection Failed');
     });
-    nsp.on('connect', () => {
+    socket.on('connect', () => {
       console.log('Connected');
     });
-    nsp.on('disconnect', () => {
+    socket.on('disconnect', () => {
       console.log('Disconnected');
     });
-    // nsp.emit('join room', this.props.roomName);
+    // socket.emit('join room', this.props.roomName);
   }
 
   render() {
