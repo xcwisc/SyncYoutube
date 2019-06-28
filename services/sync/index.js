@@ -25,6 +25,23 @@ io.on('connection', (socket) => {
   //   }
   // });
 
+  socket.on('pause_video', (data) => {
+    // console.log('message received');
+    console.log('video paused');
+    socket.broadcast.emit('pause_video', { time: data.time });
+  })
+
+  socket.on('play_video', (data) => {
+    // console.log('message received');
+    console.log('video played');
+    socket.broadcast.emit('play_video', { time: data.time });
+  })
+
+  socket.on('change_time', (data) => {
+    console.log('time changed');
+    socket.broadcast.emit('change_time', { time: data.time });
+  })
+
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   })

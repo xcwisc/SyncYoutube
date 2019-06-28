@@ -233,14 +233,16 @@ class App extends Component {
                       handleJoinFormSubmit={this.handleJoinFormSubmit}
                     />
                   )} />
-                  <Route exact path='/room' render={() =>
-                    (<Room
-                      isAuthenticated={this.state.isAuthenticated}
-                      roomName={this.state.roomInfo.roomName}
-                    />)} />
                 </Switch>
               </div>
             </div>
+            <Switch>
+              <Route exact path='/room' render={() =>
+                (<Room
+                  isAuthenticated={this.state.isAuthenticated}
+                  roomName={this.state.roomInfo.roomName}
+                />)} />
+            </Switch>
           </div>
         </section>
       </div>
