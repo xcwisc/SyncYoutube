@@ -1,0 +1,4 @@
+iframe {
+  width: 100vh;
+  height: calc(100vh / 2.25);
+}

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Route, Switch } from "react-router-dom";
 import axios from 'axios';
 
+import './App.css';
 import UsersList from './components/UsersList';
 // import AddUser from './components/AddUser';
 import About from './components/About';

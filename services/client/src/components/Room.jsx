@@ -40,12 +40,12 @@ class Logout extends Component {
       if (btn.id === 'play') {
         this.state.socket.emit('play_video', { time: this.state.player.getCurrentTime() });
         this.state.player.playVideo();
-        this.setState({ playState: 'pause' });
+        // this.setState({ playState: 'pause' });
       }
       else if (btn.id === 'pause') {
         this.state.socket.emit('pause_video', { time: this.state.player.getCurrentTime() });
         this.state.player.pauseVideo();
-        this.setState({ playState: 'play' });
+        // this.setState({ playState: 'play' });
       }
     });
 
@@ -79,6 +79,7 @@ class Logout extends Component {
     socket.on('pause_video', (data) => {
       const currTime = data.time;
       console.log(currTime);
+      // this.setState({ playState: 'play' });
       this.state.player.seekTo(currTime);
       this.state.player.pauseVideo();
       console.log('video paused');
@@ -86,6 +87,7 @@ class Logout extends Component {
     socket.on('play_video', (data) => {
       const currTime = data.time;
       console.log(currTime);
+      // this.setState({ playState: 'pause' });
       this.state.player.seekTo(currTime);
       this.state.player.playVideo();
       console.log('video played');
@@ -145,13 +147,13 @@ class Logout extends Component {
 
   _onPause(event) {
     this.setState({
-      play: 'play'
+      playState: 'play'
     })
   }
 
   _onPlay(event) {
     this.setState({
-      play: 'pause'
+      playState: 'pause'
     })
   }
 
