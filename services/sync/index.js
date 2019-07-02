@@ -16,30 +16,39 @@ let curRoomList = {};
 io.on('connection', (socket) => {
   console.log('A user connected');
 
-  // socket.on('join room', (room) => {
-  //   socket.join(room);
-  //   if (!roomExist(room, curRoomList)) {
-  //     curRoomList[room] = 1;
-  //   } else {
-  //     ++curRoomList[room];
-  //   }
-  // });
+  socket.on('join_room', (room) => {
+    socket.join(room);
+    if (!roomExist(room, curRoomList)) {
+      curRoomList[room] = 1;
+    } else {
+      ++curRoomList[room];
+    }
+  });
 
   socket.on('pause_video', (data) => {
     // console.log('message received');
     console.log('video paused');
-    socket.broadcast.emit('pause_video', { time: data.time });
+    socket.broadcast.to(data.room).emit('pause_video', { time: data.time });
   })
 
   socket.on('play_video', (data) => {
     // console.log('message received');
     console.log('video played');
-    socket.broadcast.emit('play_video', { time: data.time });
+    socket.broadcast.to(data.room).emit('play_video', { time: data.time });
   })
 
   socket.on('change_time', (data) => {
     console.log('time changed');
-    socket.broadcast.emit('change_time', { time: data.time });
+    socket.broadcast.to(data.room).emit('change_time', { time: data.time });
+  })
+
+  socket.on('leave_room', (data) => {
+    console/log('A user has left a room');
+    socket.leave(data.room);
+    curRoomList[data.room]--;
+    if (curRoomList[data.room] === 0) {
+      delete test['blue'];
+    }
   })
 
   socket.on('disconnect', () => {

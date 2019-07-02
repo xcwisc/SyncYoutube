@@ -2,9 +2,9 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 const JoinForm = (props) => {
-  if (!props.isAuthenticated) {
-    return <Redirect to='/login' />
-  }
+  // if (!props.isAuthenticated) {
+  //   return <Redirect to='/login' />
+  // }
   if (props.redirectToRoom) {
     return <Redirect to='/room' />
   }

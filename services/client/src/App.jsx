@@ -242,6 +242,7 @@ class App extends Component {
                 (<Room
                   isAuthenticated={this.state.isAuthenticated}
                   roomName={this.state.roomInfo.roomName}
+                  displayName={this.state.roomInfo.displayName}
                 />)} />
             </Switch>
           </div>

@@ -34,16 +34,29 @@ class Logout extends Component {
     return new Promise(poll);
   }
 
+  componentWillUnmount() {
+    this.exitSocketRoom();
+  }
+
+  /**
+   * helper method that add event listeners to buttons and progress bar
+   */
   addEventListeners() {
     const btn = document.querySelector('.button');
     btn.addEventListener('click', () => {
       if (btn.id === 'play') {
-        this.state.socket.emit('play_video', { time: this.state.player.getCurrentTime() });
+        this.state.socket.emit('play_video', {
+          time: this.state.player.getCurrentTime(),
+          room: this.props.roomName
+        });
         this.state.player.playVideo();
         // this.setState({ playState: 'pause' });
       }
       else if (btn.id === 'pause') {
-        this.state.socket.emit('pause_video', { time: this.state.player.getCurrentTime() });
+        this.state.socket.emit('pause_video', {
+          time: this.state.player.getCurrentTime(),
+          room: this.props.roomName
+        });
         this.state.player.pauseVideo();
         // this.setState({ playState: 'play' });
       }
@@ -58,15 +71,25 @@ class Logout extends Component {
       // console.log(`bgWidth:${bgWidth}`);
       // console.log(left / bgWidth);
       const newTime = this.state.player.getDuration() * (left / bgWidth);
-      this.state.socket.emit('change_time', { time: newTime })
+      this.state.socket.emit('change_time', {
+        time: newTime,
+        room: this.props.roomName
+      })
       // Skip video to new time.
       this.state.player.seekTo(newTime);
     });
 
   }
 
+  /**
+   * helper method that set up socket connection 
+   */
   makeSocketConnection() {
     const socket = io();
+    // join the room
+    socket.emit('join_room', { room: this.props.roomName });
+
+    // register socket events
     socket.on('connect_failed', () => {
       console.log('Connection Failed');
     });
@@ -79,7 +102,6 @@ class Logout extends Component {
     socket.on('pause_video', (data) => {
       const currTime = data.time;
       console.log(currTime);
-      // this.setState({ playState: 'play' });
       this.state.player.seekTo(currTime);
       this.state.player.pauseVideo();
       console.log('video paused');
@@ -87,7 +109,6 @@ class Logout extends Component {
     socket.on('play_video', (data) => {
       const currTime = data.time;
       console.log(currTime);
-      // this.setState({ playState: 'pause' });
       this.state.player.seekTo(currTime);
       this.state.player.playVideo();
       console.log('video played');
@@ -96,8 +117,14 @@ class Logout extends Component {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
     })
-    // socket.emit('join room', this.props.roomName);
     this.setState({ socket: socket });
+  }
+
+  /**
+   * helper method that is called when component will unmount
+   */
+  exitSocketRoom() {
+    this.state.socket.emit('leave_room', {room: this.props.roomName});
   }
 
   updateTimerDisplay() {
@@ -168,6 +195,8 @@ class Logout extends Component {
     };
     // if (!this.props.isAuthenticated) {
     //   return <Redirect to='/login' />
+    // } else if (this.props.roomName === '') {
+    //   return <Redirect to='/join'/>
     // }
     return (
       <div>
