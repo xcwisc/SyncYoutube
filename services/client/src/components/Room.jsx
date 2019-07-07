@@ -34,10 +34,6 @@ class Logout extends Component {
     return new Promise(poll);
   }
 
-  componentWillUnmount() {
-    this.exitSocketRoom();
-  }
-
   /**
    * helper method that add event listeners to buttons and progress bar
    */
@@ -46,34 +42,26 @@ class Logout extends Component {
     btn.addEventListener('click', () => {
       if (btn.id === 'play') {
         this.state.socket.emit('play_video', {
-          time: this.state.player.getCurrentTime(),
-          room: this.props.roomName
+          time: this.state.player.getCurrentTime()
         });
         this.state.player.playVideo();
-        // this.setState({ playState: 'pause' });
       }
       else if (btn.id === 'pause') {
         this.state.socket.emit('pause_video', {
-          time: this.state.player.getCurrentTime(),
-          room: this.props.roomName
+          time: this.state.player.getCurrentTime()
         });
         this.state.player.pauseVideo();
-        // this.setState({ playState: 'play' });
       }
     });
 
     const progressBar = document.querySelector('.progress');
     progressBar.addEventListener('click', (e) => {
       const bgleft = progressBar.offsetLeft + 24;
-      // console.log(`bgleft:${bgleft}`);
       const left = e.pageX - bgleft;
       const bgWidth = progressBar.offsetWidth;
-      // console.log(`bgWidth:${bgWidth}`);
-      // console.log(left / bgWidth);
       const newTime = this.state.player.getDuration() * (left / bgWidth);
       this.state.socket.emit('change_time', {
-        time: newTime,
-        room: this.props.roomName
+        time: newTime
       })
       // Skip video to new time.
       this.state.player.seekTo(newTime);
@@ -86,8 +74,6 @@ class Logout extends Component {
    */
   makeSocketConnection() {
     const socket = io();
-    // join the room
-    socket.emit('join_room', { room: this.props.roomName });
 
     // register socket events
     socket.on('connect_failed', () => {
@@ -95,53 +81,51 @@ class Logout extends Component {
     });
     socket.on('connect', () => {
       console.log('Connected');
+      // join the room
+      socket.emit('join_room', { room: this.props.roomName });
     });
     socket.on('disconnect', () => {
       console.log('Disconnected');
     });
     socket.on('pause_video', (data) => {
       const currTime = data.time;
-      console.log(currTime);
       this.state.player.seekTo(currTime);
       this.state.player.pauseVideo();
-      console.log('video paused');
     });
     socket.on('play_video', (data) => {
       const currTime = data.time;
-      console.log(currTime);
       this.state.player.seekTo(currTime);
       this.state.player.playVideo();
-      console.log('video played');
     });
     socket.on('change_time', (data) => {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
-    })
+    });
     this.setState({ socket: socket });
   }
 
   /**
-   * helper method that is called when component will unmount
+   * helper method that updates current time text display.
    */
-  exitSocketRoom() {
-    this.state.socket.emit('leave_room', {room: this.props.roomName});
-  }
-
   updateTimerDisplay() {
-    // Update current time text display.
     this.setState({
       currTime: this.formatTime(this.state.player.getCurrentTime()),
       duration: this.formatTime(this.state.player.getDuration())
     });
   }
 
+  /**
+   * helper method that updates the value of our progress bar accordingly.
+   */
   updateProgressBar() {
-    // Update the value of our progress bar accordingly.
     this.setState({
       progress: ((this.state.player.getCurrentTime() / this.state.player.getDuration()) * 100)
     })
   }
 
+  /**
+   * helper method that format time displayed at the progress bar.
+   */
   formatTime(time) {
     time = Math.round(time);
     const minutes = Math.floor(time / 60);
@@ -152,7 +136,6 @@ class Logout extends Component {
 
   _onReady(event) {
     // access to player in all event handlers via event.target
-    // console.log(this);
     this.setState({
       player: event.target
     })
@@ -200,6 +183,9 @@ class Logout extends Component {
     // }
     return (
       <div>
+        <div className="columns">
+          <h1>{this.props.roomName}</h1>
+        </div>
         <div className="columns">
           <div className="column is-one-quarter"></div>
           <div className="column is-half">

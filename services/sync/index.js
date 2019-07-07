@@ -1,7 +1,4 @@
 const app = require('express')();
-// app.get('/sync', (req, res) => {
-//   res.send('sanity check')
-// })
 const server = app.listen(8080, () => {
   const host = server.address().address;
   const port = server.address().port;
@@ -14,11 +11,13 @@ const io = require('socket.io')(server);
 let curRoomList = {};
 
 io.on('connection', (socket) => {
+  let room;
   console.log('A user connected');
 
-  socket.on('join_room', (room) => {
+  socket.on('join_room', (data) => {
+    room = data.room;
     socket.join(room);
-    if (!roomExist(room, curRoomList)) {
+    if (!curRoomList[room]) {
       curRoomList[room] = 1;
     } else {
       ++curRoomList[room];
@@ -26,32 +25,27 @@ io.on('connection', (socket) => {
   });
 
   socket.on('pause_video', (data) => {
-    // console.log('message received');
     console.log('video paused');
-    socket.broadcast.to(data.room).emit('pause_video', { time: data.time });
+    socket.broadcast.to(room).emit('pause_video', { time: data.time });
   })
 
   socket.on('play_video', (data) => {
-    // console.log('message received');
     console.log('video played');
-    socket.broadcast.to(data.room).emit('play_video', { time: data.time });
+    socket.broadcast.to(room).emit('play_video', { time: data.time });
   })
 
   socket.on('change_time', (data) => {
     console.log('time changed');
-    socket.broadcast.to(data.room).emit('change_time', { time: data.time });
-  })
-
-  socket.on('leave_room', (data) => {
-    console/log('A user has left a room');
-    socket.leave(data.room);
-    curRoomList[data.room]--;
-    if (curRoomList[data.room] === 0) {
-      delete test['blue'];
-    }
+    socket.broadcast.to(room).emit('change_time', { time: data.time });
   })
 
   socket.on('disconnect', () => {
     console.log('A user disconnected');
+    socket.leave(room);
+    curRoomList[room]--;
+    if (curRoomList[room] === 0) {
+      delete curRoomList[room];
+    }
+    console.log(curRoomList);
   })
 });
