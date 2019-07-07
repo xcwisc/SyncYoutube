@@ -14,6 +14,7 @@ class Logout extends Component {
       currTime: '----',
       duration: '----',
       playState: 'play',
+      displayNameList: []
     }
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
@@ -79,28 +80,48 @@ class Logout extends Component {
     socket.on('connect_failed', () => {
       console.log('Connection Failed');
     });
+
+    // evoke when the client is connected to the sync server
     socket.on('connect', () => {
       console.log('Connected');
-      // join the room
-      socket.emit('join_room', { room: this.props.roomName });
+      socket.emit('join_room', {
+        room: this.props.roomName,
+        displayName: this.props.displayName
+      });
     });
+
+    // evoke when the client is disconnected from the sync server
     socket.on('disconnect', () => {
       console.log('Disconnected');
     });
+
+    // evoke when some other user join the current room
+    socket.on('update_displayNameList', (data) => {
+      console.log('update_displayNameList');
+      this.setState({ displayNameList: data.displayNameList });
+    });
+
+    // evoke when some other user pause the video
     socket.on('pause_video', (data) => {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
       this.state.player.pauseVideo();
     });
+
+    // evoke when some other user play the video
     socket.on('play_video', (data) => {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
       this.state.player.playVideo();
     });
+
+    // evoke when some other user click the progress bar
     socket.on('change_time', (data) => {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
     });
+
+    // save the socket to the state for future use
     this.setState({ socket: socket });
   }
 
@@ -184,11 +205,36 @@ class Logout extends Component {
     return (
       <div>
         <div className="columns">
-          <h1>{this.props.roomName}</h1>
-        </div>
-        <div className="columns">
-          <div className="column is-one-quarter"></div>
-          <div className="column is-half">
+          <div className="column is-2 is-grey-lighter">
+            <h3 className="title is-3">Room: {this.props.roomName}</h3>
+            <table className="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+              <thead>
+                <tr>
+                  <th><abbr title="Position">Pos</abbr></th>
+                  <th>Name</th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th><abbr title="Position">Pos</abbr></th>
+                  <th>Name</th>
+                </tr>
+              </tfoot>
+              <tbody>
+                {
+                  this.state.displayNameList.map((displayName, index) => {
+                    return (
+                      <tr key={index}>
+                        <th>{index}</th>
+                        <td>{displayName}</td>
+                      </tr>
+                    )
+                  })
+                }
+              </tbody>
+            </table>
+          </div>
+          <div className="column is-8">
             <YouTube
               videoId="2g811Eo7K8U"
               opts={opts}
@@ -197,7 +243,7 @@ class Logout extends Component {
               onPlay={this._onPlay}
             />
           </div>
-          <div className="column is-one-quarter"></div>
+          <div className="column is-2"></div>
         </div>
         <div className="columns">
           <div className="column is-1"></div>

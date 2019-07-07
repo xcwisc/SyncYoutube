@@ -12,16 +12,23 @@ let curRoomList = {};
 
 io.on('connection', (socket) => {
   let room;
+  let displayName;
   console.log('A user connected');
 
   socket.on('join_room', (data) => {
     room = data.room;
+    displayName = data.displayName;
     socket.join(room);
     if (!curRoomList[room]) {
-      curRoomList[room] = 1;
+      curRoomList[room] = [displayName];
     } else {
-      ++curRoomList[room];
+      curRoomList[room].push(displayName);
     }
+    socket.nsp.to(room).emit(
+      'update_displayNameList',
+      { displayNameList: curRoomList[room] }
+    );
+    console.log(curRoomList);
   });
 
   socket.on('pause_video', (data) => {
@@ -42,8 +49,13 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('A user disconnected');
     socket.leave(room);
-    curRoomList[room]--;
-    if (curRoomList[room] === 0) {
+    for (let i = 0; i < curRoomList[room].length; i++) {
+      if (curRoomList[room][i] === displayName) {
+        curRoomList[room].splice(i, 1);
+        i--;
+      }
+    }
+    if (curRoomList[room].length === 0) {
       delete curRoomList[room];
     }
     console.log(curRoomList);
