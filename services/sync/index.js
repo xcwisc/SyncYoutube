@@ -58,6 +58,10 @@ io.on('connection', (socket) => {
     if (curRoomList[room].length === 0) {
       delete curRoomList[room];
     }
+    socket.nsp.to(room).emit(
+      'update_displayNameList',
+      { displayNameList: curRoomList[room] }
+    );
     console.log(curRoomList);
   })
 });

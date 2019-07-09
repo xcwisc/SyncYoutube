@@ -39,7 +39,7 @@ class Logout extends Component {
    * helper method that add event listeners to buttons and progress bar
    */
   addEventListeners() {
-    const btn = document.querySelector('.button');
+    const btn = document.querySelector('.control-btn');
     btn.addEventListener('click', () => {
       if (btn.id === 'play') {
         this.state.socket.emit('play_video', {
@@ -60,6 +60,7 @@ class Logout extends Component {
       const bgleft = progressBar.offsetLeft + 24;
       const left = e.pageX - bgleft;
       const bgWidth = progressBar.offsetWidth;
+      console.log(`left:${left}  bgWidth:${bgWidth}`);
       const newTime = this.state.player.getDuration() * (left / bgWidth);
       this.state.socket.emit('change_time', {
         time: newTime
@@ -243,12 +244,23 @@ class Logout extends Component {
               onPlay={this._onPlay}
             />
           </div>
-          <div className="column is-2"></div>
+          <div className="column is-2">
+            <div className="field is-grouped">
+              <p className="control is-expanded">
+                <input className="input" type="text" placeholder="Find a repository" />
+              </p>
+              <p className="control">
+                <a className="button is-info">
+                  Search
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
         <div className="columns">
           <div className="column is-1"></div>
           <div className="column is-1">
-            <a className="button" id={this.state.playState} >
+            <a className="button control-btn" id={this.state.playState} >
               <span className="icon is-small" >
                 <i className={`fas fa-${this.state.playState}`} ></i>
               </span>
