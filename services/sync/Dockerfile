@@ -15,4 +15,4 @@ RUN npm ci
 COPY . /usr/src/app
 
 # start app
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

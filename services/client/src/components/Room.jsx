@@ -14,7 +14,8 @@ class Logout extends Component {
       currTime: '----',
       duration: '----',
       playState: 'play',
-      displayNameList: []
+      userList: [],
+      videoId: '2g811Eo7K8U'
     }
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
@@ -23,16 +24,6 @@ class Logout extends Component {
 
   componentDidMount() {
     this.makeSocketConnection();
-    this.waitFor(_ => this.state.player !== null)
-      .then(this.addEventListeners());
-  }
-
-  waitFor(conditionFunction) {
-    const poll = resolve => {
-      if (conditionFunction()) resolve();
-      else setTimeout(_ => poll(resolve), 400);
-    }
-    return new Promise(poll);
   }
 
   /**
@@ -68,14 +59,14 @@ class Logout extends Component {
       // Skip video to new time.
       this.state.player.seekTo(newTime);
     });
-
   }
 
   /**
    * helper method that set up socket connection 
    */
   makeSocketConnection() {
-    const socket = io();
+    const socket = io('http://localhost:8080');
+    // const socket = io();
 
     // register socket events
     socket.on('connect_failed', () => {
@@ -87,7 +78,8 @@ class Logout extends Component {
       console.log('Connected');
       socket.emit('join_room', {
         room: this.props.roomName,
-        displayName: this.props.displayName
+        displayName: this.props.displayName,
+        id: socket.id
       });
     });
 
@@ -97,9 +89,33 @@ class Logout extends Component {
     });
 
     // evoke when some other user join the current room
-    socket.on('update_displayNameList', (data) => {
-      console.log('update_displayNameList');
-      this.setState({ displayNameList: data.displayNameList });
+    socket.on('update_nameList', (data) => {
+      console.log('update_nameList');
+      this.setState({ userList: data.userList });
+    });
+
+    // evoke when some other user join the current room
+    // response the server with current play status
+    socket.on('get_status', (data) => {
+      socket.emit('set_status', {
+        id: data.id, // id of the client that just joined
+        playState: this.state.playState,
+        currTime: this.state.player.getCurrentTime(),
+        videoId: this.state.videoId
+      });
+    });
+
+    // evoke when the server forward the current status in the room
+    socket.on('set_status', (data) => {
+      console.log(data);
+      this.setState({ videoId: data.videoId });
+      console.log(this.state);
+      this.state.player.seekTo(data.currTime);
+      if (data.playState === 'pause') {
+        this.state.player.playVideo();
+      } else if (data.playState === 'play') {
+        this.state.player.pauseVideo();
+      }
     });
 
     // evoke when some other user pause the video
@@ -174,7 +190,12 @@ class Logout extends Component {
       this.updateTimerDisplay();
       this.updateProgressBar();
     }, 1000);
-    this.state.player.playVideo();
+
+    // register event listeners to buttons
+    this.addEventListeners();
+    
+    // send the sync signal
+    this.state.socket.emit('get_status', { id: this.state.socket.id });
   }
 
   _onPause(event) {
@@ -223,11 +244,11 @@ class Logout extends Component {
               </tfoot>
               <tbody>
                 {
-                  this.state.displayNameList.map((displayName, index) => {
+                  this.state.userList.map((user, index) => {
                     return (
                       <tr key={index}>
                         <th>{index}</th>
-                        <td>{displayName}</td>
+                        <td>{user.displayName}</td>
                       </tr>
                     )
                   })
@@ -237,7 +258,7 @@ class Logout extends Component {
           </div>
           <div className="column is-8">
             <YouTube
-              videoId="2g811Eo7K8U"
+              videoId={this.state.videoId}
               opts={opts}
               onReady={this._onReady}
               onPause={this._onPause}

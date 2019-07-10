@@ -16,20 +16,51 @@ io.on('connection', (socket) => {
   console.log('A user connected');
 
   socket.on('join_room', (data) => {
+    // join the connected client to the room
     room = data.room;
     displayName = data.displayName;
+    let id = data.id;
     socket.join(room);
+
+    // add the client to the "database"
     if (!curRoomList[room]) {
-      curRoomList[room] = [displayName];
+      curRoomList[room] = [{
+        displayName: displayName,
+        id: id
+      }];
     } else {
-      curRoomList[room].push(displayName);
+      curRoomList[room].push({
+        displayName: displayName,
+        id: id
+      });
     }
+
+    // update the display table in each client in the room
     socket.nsp.to(room).emit(
-      'update_displayNameList',
-      { displayNameList: curRoomList[room] }
+      'update_nameList',
+      { userList: curRoomList[room] }
     );
+
     console.log(curRoomList);
   });
+
+  socket.on('get_status', (data) => {
+    // sync with other users in the room when join
+    if (curRoomList[room].length > 1) {
+      targetSocketId = curRoomList[room][0].id;
+      console.log(`targetSocketId:${targetSocketId}`);
+      socket.nsp.connected[targetSocketId].emit('get_status', { id: data.id });
+    }
+  })
+
+  socket.on('set_status', (data) => {
+    console.log(`join user id:${data.id}`);
+    socket.nsp.connected[data.id].emit('set_status', {
+      playState: data.playState,
+      currTime: data.currTime,
+      videoId: data.videoId
+    });
+  })
 
   socket.on('pause_video', (data) => {
     console.log('video paused');
@@ -50,7 +81,7 @@ io.on('connection', (socket) => {
     console.log('A user disconnected');
     socket.leave(room);
     for (let i = 0; i < curRoomList[room].length; i++) {
-      if (curRoomList[room][i] === displayName) {
+      if (curRoomList[room][i].displayName === displayName) {
         curRoomList[room].splice(i, 1);
         i--;
       }
@@ -59,8 +90,8 @@ io.on('connection', (socket) => {
       delete curRoomList[room];
     }
     socket.nsp.to(room).emit(
-      'update_displayNameList',
-      { displayNameList: curRoomList[room] }
+      'update_nameList',
+      { userList: curRoomList[room] }
     );
     console.log(curRoomList);
   })
