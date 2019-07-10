@@ -172,6 +172,12 @@ class Logout extends Component {
     return minutes + ":" + seconds;
   }
 
+  handleVideoIdChange(event) {
+    event.preventDefault();
+    console.log(event.target.videoId);
+    this.setState({ videoId: event.target.videoId })
+  }
+
   _onReady(event) {
     // access to player in all event handlers via event.target
     this.setState({
@@ -247,7 +253,7 @@ class Logout extends Component {
                   this.state.userList.map((user, index) => {
                     return (
                       <tr key={index}>
-                        <th>{index}</th>
+                        <th>{index+1}</th>
                         <td>{user.displayName}</td>
                       </tr>
                     )
@@ -266,22 +272,24 @@ class Logout extends Component {
             />
           </div>
           <div className="column is-2">
-            <div className="field is-grouped">
-              <p className="control is-expanded">
-                <input className="input" type="text" placeholder="Find a repository" />
-              </p>
-              <p className="control">
-                <a className="button is-info">
-                  Search
-                </a>
-              </p>
-            </div>
+            <form onSubmit={(event) => this.handleVideoIdChange(event)}>
+              <div className="field has-addons">
+                <div className="control">
+                  <input className="input" type="text" placeholder="Video Id" name="videoId"/>
+                </div>
+                <div className="control">
+                  <a className="button is-info">
+                    Find
+                  </a>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
         <div className="columns">
           <div className="column is-1"></div>
           <div className="column is-1">
-            <a className="button control-btn" id={this.state.playState} >
+            <a className="button control-btn" id={this.state.playState}>
               <span className="icon is-small" >
                 <i className={`fas fa-${this.state.playState}`} ></i>
               </span>
