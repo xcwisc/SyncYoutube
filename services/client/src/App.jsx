@@ -17,7 +17,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      title: 'TestDriven',
+      title: 'SyncYoutube',
       users: [],
       userInfo: {
         username: '',
