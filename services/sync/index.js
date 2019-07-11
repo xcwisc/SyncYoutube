@@ -77,6 +77,11 @@ io.on('connection', (socket) => {
     socket.broadcast.to(room).emit('change_time', { time: data.time });
   })
 
+  socket.on('change_video', (data) => {
+    console.log('video changed');
+    socket.broadcast.to(room).emit('change_video', { videoId: data.videoId });
+  })
+
   socket.on('disconnect', () => {
     console.log('A user disconnected');
     socket.leave(room);

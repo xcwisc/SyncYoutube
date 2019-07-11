@@ -11,8 +11,8 @@ class Logout extends Component {
       player: null,
       socket: null,
       progress: 0,
-      currTime: '----',
-      duration: '----',
+      currTime: '0:00',
+      duration: '0:00',
       playState: 'play',
       userList: [],
       videoId: '2g811Eo7K8U'
@@ -59,6 +59,15 @@ class Logout extends Component {
       // Skip video to new time.
       this.state.player.seekTo(newTime);
     });
+
+    const videoIdForm = document.querySelector('#videoId-form');
+    videoIdForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const videoId = e.target.videoId.value;
+      console.log(videoId);
+      this.state.socket.emit('change_video', { videoId: videoId });
+      this.setState({ videoId: videoId });
+    })
   }
 
   /**
@@ -73,7 +82,7 @@ class Logout extends Component {
       console.log('Connection Failed');
     });
 
-    // evoke when the client is connected to the sync server
+    // evokes when the client is connected to the sync server
     socket.on('connect', () => {
       console.log('Connected');
       socket.emit('join_room', {
@@ -83,18 +92,18 @@ class Logout extends Component {
       });
     });
 
-    // evoke when the client is disconnected from the sync server
+    // evokes when the client is disconnected from the sync server
     socket.on('disconnect', () => {
       console.log('Disconnected');
     });
 
-    // evoke when some other user join the current room
+    // evokes when some other user join the current room
     socket.on('update_nameList', (data) => {
       console.log('update_nameList');
       this.setState({ userList: data.userList });
     });
 
-    // evoke when some other user join the current room
+    // evokes when some other user join the current room
     // response the server with current play status
     socket.on('get_status', (data) => {
       socket.emit('set_status', {
@@ -105,38 +114,56 @@ class Logout extends Component {
       });
     });
 
-    // evoke when the server forward the current status in the room
+    // evokes when the server forward the current status in the room
     socket.on('set_status', (data) => {
       console.log(data);
       this.setState({ videoId: data.videoId });
-      console.log(this.state);
-      this.state.player.seekTo(data.currTime);
-      if (data.playState === 'pause') {
-        this.state.player.playVideo();
-      } else if (data.playState === 'play') {
-        this.state.player.pauseVideo();
-      }
+      // console.log(this.state);
+      // console.log(this.state.player.getVideoData());
+      // console.log(this.state.player.getVideoUrl());
+      this.waitFor(_ => data.videoId === this.state.player.getVideoData().video_id && this.state.player.getDuration() !== 0)
+        .then(_ => {
+          this.state.player.seekTo(data.currTime);
+          console.log(this.state.player.getDuration());
+          this.setState({ 
+            progress: data.currTime / this.state.player.getDuration() * 100,
+            currTime: this.formatTime(data.currTime),
+            duration: this.formatTime(this.state.player.getDuration())
+          })
+          if (data.playState === 'pause') {
+            this.state.player.playVideo();
+          } else if (data.playState === 'play') {
+            this.state.player.pauseVideo();
+          }
+        })
+        .catch(err => console.log(err));
     });
 
-    // evoke when some other user pause the video
+    // evokes when some other user pause the video
     socket.on('pause_video', (data) => {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
       this.state.player.pauseVideo();
     });
 
-    // evoke when some other user play the video
+    // evokes when some other user play the video
     socket.on('play_video', (data) => {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
       this.state.player.playVideo();
     });
 
-    // evoke when some other user click the progress bar
+    // evokes when some other user click the progress bar
     socket.on('change_time', (data) => {
       const currTime = data.time;
       this.state.player.seekTo(currTime);
     });
+
+    // evokes when some other user changes a video
+    socket.on('change_video', (data) => {
+      const videoId = data.videoId;
+      this.setState({ videoId: videoId });
+    })
 
     // save the socket to the state for future use
     this.setState({ socket: socket });
@@ -156,8 +183,12 @@ class Logout extends Component {
    * helper method that updates the value of our progress bar accordingly.
    */
   updateProgressBar() {
+    let progress = this.state.player.getCurrentTime() / this.state.player.getDuration() * 100;
+    if (isNaN(progress)) {
+      progress = 0;
+    }
     this.setState({
-      progress: ((this.state.player.getCurrentTime() / this.state.player.getDuration()) * 100)
+      progress: progress
     })
   }
 
@@ -170,12 +201,6 @@ class Logout extends Component {
     let seconds = time - minutes * 60;
     seconds = seconds < 10 ? '0' + seconds : seconds;
     return minutes + ":" + seconds;
-  }
-
-  handleVideoIdChange(event) {
-    event.preventDefault();
-    console.log(event.target.videoId);
-    this.setState({ videoId: event.target.videoId })
   }
 
   _onReady(event) {
@@ -214,6 +239,14 @@ class Logout extends Component {
     this.setState({
       playState: 'pause'
     })
+  }
+
+  waitFor(conditionFunction) {
+    const poll = resolve => {
+      if(conditionFunction()) resolve();
+      else setTimeout(_ => poll(resolve), 400);
+    }
+    return new Promise(poll);
   }
 
   render() {
@@ -272,15 +305,17 @@ class Logout extends Component {
             />
           </div>
           <div className="column is-2">
-            <form onSubmit={(event) => this.handleVideoIdChange(event)}>
+            <form id="videoId-form">
               <div className="field has-addons">
                 <div className="control">
                   <input className="input" type="text" placeholder="Video Id" name="videoId"/>
                 </div>
                 <div className="control">
-                  <a className="button is-info">
-                    Find
-                  </a>
+                  <input
+                    type="submit"
+                    className="button is-primary"
+                    value="Find"
+                  />
                 </div>
               </div>
             </form>
