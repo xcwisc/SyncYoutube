@@ -3,7 +3,9 @@ import YouTube from 'react-youtube';
 import { Redirect } from 'react-router-dom';
 import io from 'socket.io-client';
 
-class Logout extends Component {
+import Modal from "./Modal";
+
+class Room extends Component {
   constructor(props) {
     super(props);
 
@@ -48,10 +50,12 @@ class Logout extends Component {
 
     const progressBar = document.querySelector('.progress');
     progressBar.addEventListener('click', (e) => {
-      const bgleft = progressBar.offsetLeft + 24;
-      const left = e.pageX - bgleft;
+      const container = document.querySelector('.container');
+      let containerMargin = window.getComputedStyle(container).marginLeft;
+      containerMargin = Number(containerMargin.substr(0, containerMargin.length - 2));
+      const bgleft = progressBar.offsetLeft;
+      const left = e.pageX - bgleft - containerMargin;
       const bgWidth = progressBar.offsetWidth;
-      console.log(`left:${left}  bgWidth:${bgWidth}`);
       const newTime = this.state.player.getDuration() * (left / bgWidth);
       this.state.socket.emit('change_time', {
         time: newTime
@@ -67,7 +71,7 @@ class Logout extends Component {
       console.log(videoId);
       this.state.socket.emit('change_video', { videoId: videoId });
       this.setState({ videoId: videoId });
-    })
+    });
   }
 
   /**
@@ -125,7 +129,7 @@ class Logout extends Component {
         .then(_ => {
           this.state.player.seekTo(data.currTime);
           console.log(this.state.player.getDuration());
-          this.setState({ 
+          this.setState({
             progress: data.currTime / this.state.player.getDuration() * 100,
             currTime: this.formatTime(data.currTime),
             duration: this.formatTime(this.state.player.getDuration())
@@ -224,7 +228,7 @@ class Logout extends Component {
 
     // register event listeners to buttons
     this.addEventListeners();
-    
+
     // send the sync signal
     this.state.socket.emit('get_status', { id: this.state.socket.id });
   }
@@ -243,7 +247,7 @@ class Logout extends Component {
 
   waitFor(conditionFunction) {
     const poll = resolve => {
-      if(conditionFunction()) resolve();
+      if (conditionFunction()) resolve();
       else setTimeout(_ => poll(resolve), 400);
     }
     return new Promise(poll);
@@ -266,36 +270,11 @@ class Logout extends Component {
     return (
       <div>
         <div className="columns">
-          <div className="column is-2 is-grey-lighter">
-            <h3 className="title is-3">Room: {this.props.roomName}</h3>
-            <table className="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
-              <thead>
-                <tr>
-                  <th><abbr title="Position">Pos</abbr></th>
-                  <th>Name</th>
-                </tr>
-              </thead>
-              <tfoot>
-                <tr>
-                  <th><abbr title="Position">Pos</abbr></th>
-                  <th>Name</th>
-                </tr>
-              </tfoot>
-              <tbody>
-                {
-                  this.state.userList.map((user, index) => {
-                    return (
-                      <tr key={index}>
-                        <th>{index+1}</th>
-                        <td>{user.displayName}</td>
-                      </tr>
-                    )
-                  })
-                }
-              </tbody>
-            </table>
-          </div>
           <div className="column is-8">
+            <h2 className="title is-2">Room: {this.props.roomName}
+              <Modal userList={this.state.userList}></Modal>
+            </h2>
+            <hr></hr>
             <YouTube
               videoId={this.state.videoId}
               opts={opts}
@@ -304,36 +283,40 @@ class Logout extends Component {
               onPlay={this._onPlay}
             />
           </div>
-          <div className="column is-2">
+          <div className="column is-4 is-grey-lighter">
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
             <form id="videoId-form">
               <div className="field has-addons">
                 <div className="control">
-                  <input className="input" type="text" placeholder="Video Id" name="videoId"/>
+                  <input className="input" type="text" placeholder="Video Id" name="videoId" />
                 </div>
                 <div className="control">
                   <input
                     type="submit"
-                    className="button is-primary"
+                    className="button is-dark"
                     value="Find"
                   />
                 </div>
               </div>
             </form>
+            <br></br>
           </div>
         </div>
         <div className="columns">
-          <div className="column is-1"></div>
-          <div className="column is-1">
-            <a className="button control-btn" id={this.state.playState}>
+          <div className="column is-1" style={{ paddingTop: "6px" }}>
+            <span className="button control-btn is-small is-right" id={this.state.playState} style={{ float: "center", left: "36px" }}>
               <span className="icon is-small" >
                 <i className={`fas fa-${this.state.playState}`} ></i>
               </span>
-            </a>
+            </span>
           </div>
-          <div className="column is-8">
+          <div className="column is-6">
             <progress className="progress is-small" value={this.state.progress} max="100"></progress>
           </div>
-          <div className="column is-2" style={{ padding: '6px' }}>
+          <div className="column is-1" style={{ padding: '6px' }}>
             <span>{this.state.currTime}/{this.state.duration}</span>
           </div>
         </div>
@@ -342,4 +325,4 @@ class Logout extends Component {
   };
 }
 
-export default Logout;
+export default Room;

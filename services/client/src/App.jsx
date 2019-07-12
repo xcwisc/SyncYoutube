@@ -247,7 +247,7 @@ class App extends Component {
             </Switch>
           </div>
         </section>
-      </div>
+      </div >
     )
   }
 };
