@@ -14,7 +14,7 @@ const Message = (props) => {
         </div>
       </div>
       <div className="media-right">
-        <button className="delete"></button>
+        <button className="delete" onClick={(e) => props.handleMessageDelete(e, props.index)}></button>
       </div>
     </article>
   )

@@ -24,6 +24,7 @@ class Room extends Component {
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
     this._onPlay = this._onPlay.bind(this);
+    this.handleMessageDelete = this.handleMessageDelete.bind(this);
   }
 
   componentDidMount() {
@@ -55,6 +56,9 @@ class Room extends Component {
       const container = document.querySelector('.container');
       let containerMargin = window.getComputedStyle(container).marginLeft;
       containerMargin = Number(containerMargin.substr(0, containerMargin.length - 2));
+      if (containerMargin === 0) {
+        containerMargin = 24;
+      }
       const bgleft = progressBar.offsetLeft;
       const left = e.pageX - bgleft - containerMargin;
       const bgWidth = progressBar.offsetWidth;
@@ -234,6 +238,16 @@ class Room extends Component {
     return minutes + ":" + seconds;
   }
 
+  /**
+   * event handler for a message deletion.
+   */
+  handleMessageDelete(e, index) {
+    let messages = this.state.messages;
+    console.log(index);
+    messages.splice(index, 1);
+    this.setState({ messages: messages });
+  }
+
   _onReady(event) {
     // access to player in all event handlers via event.target
     this.setState({
@@ -340,7 +354,13 @@ class Room extends Component {
             }}>
               {this.state.messages.map((message, index) => {
                 return (
-                  <Message key={index} message={message.message} displayName={message.displayName} />
+                  <Message
+                    key={index}
+                    message={message.message}
+                    displayName={message.displayName}
+                    handleMessageDelete={this.handleMessageDelete}
+                    index={index}
+                  />
                 )
               })}
             </div>
