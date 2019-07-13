@@ -37,8 +37,9 @@ io.on('connection', (socket) => {
 
     // update the display table in each client in the room
     socket.nsp.to(room).emit(
-      'update_nameList',
-      { userList: curRoomList[room] }
+      'update_nameList', {
+        userList: curRoomList[room]
+      }
     );
 
     console.log(curRoomList);
@@ -49,9 +50,11 @@ io.on('connection', (socket) => {
     if (curRoomList[room].length > 1) {
       targetSocketId = curRoomList[room][0].id;
       console.log(`targetSocketId:${targetSocketId}`);
-      socket.nsp.connected[targetSocketId].emit('get_status', { id: data.id });
+      socket.nsp.connected[targetSocketId].emit('get_status', {
+        id: data.id
+      });
     }
-  })
+  });
 
   socket.on('set_status', (data) => {
     console.log(`join user id:${data.id}`);
@@ -60,27 +63,43 @@ io.on('connection', (socket) => {
       currTime: data.currTime,
       videoId: data.videoId
     });
-  })
+  });
 
   socket.on('pause_video', (data) => {
     console.log('video paused');
-    socket.broadcast.to(room).emit('pause_video', { time: data.time });
-  })
+    socket.broadcast.to(room).emit('pause_video', {
+      time: data.time
+    });
+  });
 
   socket.on('play_video', (data) => {
     console.log('video played');
-    socket.broadcast.to(room).emit('play_video', { time: data.time });
-  })
+    socket.broadcast.to(room).emit('play_video', {
+      time: data.time
+    });
+  });
 
   socket.on('change_time', (data) => {
     console.log('time changed');
-    socket.broadcast.to(room).emit('change_time', { time: data.time });
-  })
+    socket.broadcast.to(room).emit('change_time', {
+      time: data.time
+    });
+  });
 
   socket.on('change_video', (data) => {
     console.log('video changed');
-    socket.broadcast.to(room).emit('change_video', { videoId: data.videoId });
-  })
+    socket.broadcast.to(room).emit('change_video', {
+      videoId: data.videoId
+    });
+  });
+
+  socket.on('chat', (data) => {
+    console.log('chat message received');
+    socket.nsp.to(room).emit('chat', {
+      message: data.message,
+      displayName: data.displayName
+    });
+  });
 
   socket.on('disconnect', () => {
     console.log('A user disconnected');
@@ -95,9 +114,10 @@ io.on('connection', (socket) => {
       delete curRoomList[room];
     }
     socket.nsp.to(room).emit(
-      'update_nameList',
-      { userList: curRoomList[room] }
+      'update_nameList', {
+        userList: curRoomList[room]
+      }
     );
     console.log(curRoomList);
-  })
+  });
 });

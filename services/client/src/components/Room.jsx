@@ -3,7 +3,8 @@ import YouTube from 'react-youtube';
 import { Redirect } from 'react-router-dom';
 import io from 'socket.io-client';
 
-import Modal from "./Modal";
+import Modal from './Modal';
+import Message from './Message';
 
 class Room extends Component {
   constructor(props) {
@@ -17,7 +18,8 @@ class Room extends Component {
       duration: '0:00',
       playState: 'play',
       userList: [],
-      videoId: '2g811Eo7K8U'
+      videoId: '2g811Eo7K8U',
+      messages: []
     }
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
@@ -71,6 +73,18 @@ class Room extends Component {
       console.log(videoId);
       this.state.socket.emit('change_video', { videoId: videoId });
       this.setState({ videoId: videoId });
+    });
+
+    const sendMessageForm = document.querySelector('#sendMessage-form');
+    sendMessageForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = e.target.message.value;
+      const displayName = this.props.displayName;
+      // console.log(message);
+      this.state.socket.emit('chat', {
+        message: message,
+        displayName: displayName
+      });
     });
   }
 
@@ -167,6 +181,19 @@ class Room extends Component {
     socket.on('change_video', (data) => {
       const videoId = data.videoId;
       this.setState({ videoId: videoId });
+    })
+
+    // evokes when some other user send a chat message
+    socket.on('chat', (data) => {
+      let messages = this.state.messages;
+      if (messages.length > 10) {
+        messages = messages.slice(0, messages.length - 2);
+      }
+      messages.unshift({
+        message: data.message,
+        displayName: data.displayName
+      });
+      this.setState({ messages: messages });
     })
 
     // save the socket to the state for future use
@@ -297,17 +324,36 @@ class Room extends Component {
                   <input
                     type="submit"
                     className="button is-dark"
-                    value="Find"
+                    value="Find a video"
                   />
                 </div>
               </div>
             </form>
+            <div className="chat-room" style={{
+              overflow: "auto",
+              height: "376px",
+              maxWidth: "308px",
+              WebkitTransform: "rotate(180deg)",
+              backgroundColor: "#909090",
+              borderRadius: "0.25em",
+              marginTop: "6px"
+            }}>
+              {this.state.messages.map((message, index) => {
+                return (
+                  <Message key={index} message={message.message} displayName={message.displayName} />
+                )
+              })}
+            </div>
             <br></br>
           </div>
         </div>
         <div className="columns">
           <div className="column is-1" style={{ paddingTop: "6px" }}>
-            <span className="button control-btn is-small is-right" id={this.state.playState} style={{ float: "center", left: "36px" }}>
+            <span className="button control-btn is-small is-right" id={this.state.playState} style={{
+              float: "center",
+              left: "36px",
+              backgroundColor: "#cccccc"
+            }}>
               <span className="icon is-small" >
                 <i className={`fas fa-${this.state.playState}`} ></i>
               </span>
@@ -318,6 +364,22 @@ class Room extends Component {
           </div>
           <div className="column is-1" style={{ padding: '6px' }}>
             <span>{this.state.currTime}/{this.state.duration}</span>
+          </div>
+          <div className="column is-4" style={{ paddingTop: "0px" }}>
+            <form id="sendMessage-form">
+              <div className="field has-addons">
+                <div className="control">
+                  <input className="input" type="text" placeholder="Say somthing" name="message" />
+                </div>
+                <div className="control">
+                  <input
+                    type="submit"
+                    className="button is-dark"
+                    value="Send to room"
+                  />
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </div >

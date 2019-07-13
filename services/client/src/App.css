@@ -1,4 +1,21 @@
+#root {
+  background-color: #cccccc;
+  min-height: 968px;
+}
+
+hr {
+  background-color: #a2a2a2;
+}
+
 iframe {
   width: 100vh;
   height: calc(100vh / 2.25);
+}
+
+::-webkit-scrollbar {
+  Transform: rotate(180deg);
+}
+
+.input {
+  background-color: #bdbdbd;
 }
