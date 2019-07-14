@@ -50,3 +50,14 @@ services:
       - 80
     depends_on:
       - users
+    
+  sync:
+    build:
+      context: ./services/sync
+      dockerfile: Dockerfile-prod
+    expose:
+      - 8080
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - users

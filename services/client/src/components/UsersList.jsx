@@ -5,7 +5,7 @@ const UsersList = (props) => {
     <div>
       <h1 className="title is-1">All Users</h1>
       <hr /><br />
-      <table className="table is-hoverable is-fullwidth">
+      {/* <table className="table is-hoverable is-fullwidth">
         <thead>
           <tr>
             <th>ID</th>
@@ -30,7 +30,7 @@ const UsersList = (props) => {
             })
           }
         </tbody>
-      </table>
+      </table> */}
     </div>
   )
 };

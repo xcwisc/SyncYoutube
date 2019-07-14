@@ -96,8 +96,8 @@ class Room extends Component {
    * helper method that set up socket connection 
    */
   makeSocketConnection() {
-    const socket = io('http://localhost:8080');
-    // const socket = io();
+    // const socket = io('http://localhost:8080');
+    const socket = io();
 
     // register socket events
     socket.on('connect_failed', () => {
@@ -271,6 +271,7 @@ class Room extends Component {
     this.addEventListeners();
 
     // send the sync signal
+    console.log(this.state.socket.id);
     this.state.socket.emit('get_status', { id: this.state.socket.id });
   }
 
@@ -303,11 +304,11 @@ class Room extends Component {
         controls: 0,
       }
     };
-    // if (!this.props.isAuthenticated) {
-    //   return <Redirect to='/login' />
-    // } else if (this.props.roomName === '') {
-    //   return <Redirect to='/join'/>
-    // }
+    if (!this.props.isAuthenticated) {
+      return <Redirect to='/login' />
+    } else if (this.props.roomName === '') {
+      return <Redirect to='/join' />
+    }
     return (
       <div>
         <div className="columns">
@@ -325,8 +326,6 @@ class Room extends Component {
             />
           </div>
           <div className="column is-4 is-grey-lighter">
-            <br></br>
-            <br></br>
             <br></br>
             <br></br>
             <form id="videoId-form">
@@ -389,7 +388,7 @@ class Room extends Component {
             <form id="sendMessage-form">
               <div className="field has-addons">
                 <div className="control">
-                  <input className="input" type="text" placeholder="Say somthing" name="message" />
+                  <input className="input" type="text" placeholder="Say something" name="message" />
                 </div>
                 <div className="control">
                   <input
