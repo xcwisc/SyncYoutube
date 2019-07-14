@@ -48,14 +48,14 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.getUsers();
+    // this.getUsers();
   }
   // get all the users and update the user list
-  getUsers() {
-    axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
-      .then((res) => { this.setState({ users: res.data.data.users }); })
-      .catch((err) => { console.log(err); });
-  }
+  // getUsers() {
+  //   axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
+  //     .then((res) => { this.setState({ users: res.data.data.users }); })
+  //     .catch((err) => { console.log(err); });
+  // }
 
   // get a logedin user's info
   getUserStatus() {
