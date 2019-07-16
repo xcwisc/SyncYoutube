@@ -96,8 +96,8 @@ class Room extends Component {
    * helper method that set up socket connection 
    */
   makeSocketConnection() {
-    // const socket = io('http://localhost:8080');
-    const socket = io();
+    const socket = io('http://localhost:8080');
+    // const socket = io('http://sync:8080');
 
     // register socket events
     socket.on('connect_failed', () => {
@@ -304,11 +304,11 @@ class Room extends Component {
         controls: 0,
       }
     };
-    if (!this.props.isAuthenticated) {
-      return <Redirect to='/login' />
-    } else if (this.props.roomName === '') {
-      return <Redirect to='/join' />
-    }
+    // if (!this.props.isAuthenticated) {
+    //   return <Redirect to='/login' />
+    // } else if (this.props.roomName === '') {
+    //   return <Redirect to='/join' />
+    // }
     return (
       <div>
         <div className="columns">
