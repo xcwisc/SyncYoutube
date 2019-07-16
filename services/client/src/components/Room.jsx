@@ -109,8 +109,7 @@ class Room extends Component {
       console.log('Connected');
       socket.emit('join_room', {
         room: this.props.roomName,
-        displayName: this.props.displayName,
-        id: socket.id
+        displayName: this.props.displayName
       });
     });
 

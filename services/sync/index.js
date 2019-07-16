@@ -1,4 +1,6 @@
 const app = require('express')();
+const redis = require('redis');
+// const redisAdapter = require('socket.io-redis');
 const server = app.listen(8080, () => {
   const host = server.address().address;
   const port = server.address().port;
@@ -7,53 +9,46 @@ const server = app.listen(8080, () => {
 });
 
 const io = require('socket.io')(server);
-
-let curRoomList = {};
+// io.adapter(redisAdapter({
+//   host: 'localhost',
+//   port: 6379
+// }));
+const client = redis.createClient();
 
 io.on('connection', (socket) => {
   let room;
   let displayName;
+  let id = socket.id;
   console.log('A user connected');
 
   socket.on('join_room', (data) => {
     // join the connected client to the room
     room = data.room;
     displayName = data.displayName;
-    let id = data.id;
     socket.join(room);
 
-    // add the client to the "database"
-    if (!curRoomList[room]) {
-      curRoomList[room] = [{
-        displayName: displayName,
-        id: id
-      }];
-    } else {
-      curRoomList[room].push({
-        displayName: displayName,
-        id: id
-      });
-    }
+    // add the client to redis
+    const user = `${id}.${displayName}`;
+    client.lpush(room, user);
 
-    // update the display table in each client in the room
-    socket.nsp.to(room).emit(
-      'update_nameList', {
-        userList: curRoomList[room]
-      }
-    );
-
-    console.log(curRoomList);
+    // updateNameList
+    updateNameList(room, socket);
   });
 
   socket.on('get_status', (data) => {
     // sync with other users in the room when join
-    if (curRoomList[room].length > 1) {
-      targetSocketId = curRoomList[room][0].id;
-      console.log(`targetSocketId:${targetSocketId}`);
-      socket.nsp.connected[targetSocketId].emit('get_status', {
-        id: data.id
-      });
-    }
+    client.llen(room, (err, res) => {
+      console.log(res);
+      if (res > 1) {
+        client.lindex(room, -1, (err, res) => {
+          targetSocketId = res.split(".")[0];
+          console.log(`targetSocketId:${targetSocketId}`);
+          socket.nsp.connected[targetSocketId].emit('get_status', {
+            id: data.id
+          });
+        });
+      }
+    });
   });
 
   socket.on('set_status', (data) => {
@@ -104,20 +99,35 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('A user disconnected');
     socket.leave(room);
-    for (let i = 0; i < curRoomList[room].length; i++) {
-      if (curRoomList[room][i].displayName === displayName) {
-        curRoomList[room].splice(i, 1);
-        i--;
-      }
-    }
-    if (curRoomList[room].length === 0) {
-      delete curRoomList[room];
-    }
-    socket.nsp.to(room).emit(
-      'update_nameList', {
-        userList: curRoomList[room]
-      }
-    );
-    console.log(curRoomList);
+    const user = `${id}.${displayName}`;
+    client.lrem(room, 1, user);
+    updateNameList(room, socket);
   });
 });
+
+
+/**
+ * update the display table in each client in the room
+ * @param {string} room
+ * @param {*} socket 
+ */
+const updateNameList = (room, socket) => {
+  client.lrange(room, 0, -1, (err, res) => {
+    console.log(res);
+    let userList = [];
+    res.map((el) => {
+      const parsed = el.split('.', 2);
+      const id = parsed[0];
+      const displayName = parsed[1];
+      userList.push({
+        displayName: displayName,
+        id: id
+      });
+    });
+    socket.nsp.to(room).emit(
+      'update_nameList', {
+        userList: userList
+      }
+    );
+  });
+}
