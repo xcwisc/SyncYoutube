@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
 
     // add the client to redis
     const user = `${id}.${displayName}`;
-    client.lpush(room, user);
+    client.rpush(room, user);
 
     // updateNameList
     updateNameList(room, socket);
@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
     client.llen(room, (err, res) => {
       console.log(res);
       if (res > 1) {
-        client.lindex(room, -1, (err, res) => {
+        client.lindex(room, 0, (err, res) => {
           targetSocketId = res.split(".")[0];
           console.log(`targetSocketId:${targetSocketId}`);
           socket.nsp.connected[targetSocketId].emit('get_status', {

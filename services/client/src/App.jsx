@@ -3,9 +3,7 @@ import { Route, Switch } from "react-router-dom";
 import axios from 'axios';
 
 import './App.css';
-import UsersList from './components/UsersList';
-// import AddUser from './components/AddUser';
-import About from './components/About';
+import Home from './components/Home';
 import Navbar from './components/Navbar';
 import Form from './components/Form';
 import Logout from './components/Logout';
@@ -189,10 +187,7 @@ class App extends Component {
               <div className="column is-half">
                 <br />
                 <Switch>
-                  <Route exact path='/' render={() => (
-                    <UsersList users={this.state.users} />
-                  )} />
-                  <Route exact path='/about' component={About} />
+                  <Route exact path='/' component={Home} />
                   <Route exact path='/register' render={() => (
                     <Form
                       formType={'Register'}

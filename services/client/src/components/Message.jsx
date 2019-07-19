@@ -2,7 +2,7 @@ import React from 'react';
 
 const Message = (props) => {
   return (
-    <article className="media" style={{ WebkitTransform: "rotate(180deg)" }}>
+    <article className="media" >
       <div className="media-content">
         <div className="content">
           <p>

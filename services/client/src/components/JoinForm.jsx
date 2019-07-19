@@ -37,7 +37,7 @@ const JoinForm = (props) => {
         </div>
         <input
           type="submit"
-          className="button is-primary is-medium is-fullwidth"
+          className="button is-dark is-medium is-fullwidth"
           value="Submit"
         />
       </form>

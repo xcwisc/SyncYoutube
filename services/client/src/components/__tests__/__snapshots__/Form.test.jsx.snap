@@ -63,7 +63,7 @@ exports[`When not authenticated Login Form renders a snapshot properly 1`] = `
       />
     </div>
     <input
-      className="button is-primary is-medium is-fullwidth"
+      className="button is-dark is-medium is-fullwidth"
       type="submit"
       value="Submit"
     />
@@ -159,7 +159,7 @@ exports[`When not authenticated Register Form renders a snapshot properly 1`] = 
       />
     </div>
     <input
-      className="button is-primary is-medium is-fullwidth"
+      className="button is-dark is-medium is-fullwidth"
       type="submit"
       value="Submit"
     />

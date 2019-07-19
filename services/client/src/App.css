@@ -19,3 +19,24 @@ iframe {
 .input {
   background-color: #bdbdbd;
 }
+
+/* Room style */
+.chat-room {
+  overflow: auto;
+  height: 376px;
+  max-width: 308px;
+  transform: rotate(180deg);
+  background-color: #909090;
+  border-radius: 0.25em;
+  margin-top: 6px;
+}
+
+.control-btn {
+  float: center;
+  left: 36px;
+  background-color: #cccccc;
+}
+
+.media {
+  transform: rotate(180deg);
+}

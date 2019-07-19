@@ -341,15 +341,7 @@ class Room extends Component {
                 </div>
               </div>
             </form>
-            <div className="chat-room" style={{
-              overflow: "auto",
-              height: "376px",
-              maxWidth: "308px",
-              WebkitTransform: "rotate(180deg)",
-              backgroundColor: "#909090",
-              borderRadius: "0.25em",
-              marginTop: "6px"
-            }}>
+            <div className="chat-room" >
               {this.state.messages.map((message, index) => {
                 return (
                   <Message
@@ -367,11 +359,7 @@ class Room extends Component {
         </div>
         <div className="columns">
           <div className="column is-1" style={{ paddingTop: "6px" }}>
-            <span className="button control-btn is-small is-right" id={this.state.playState} style={{
-              float: "center",
-              left: "36px",
-              backgroundColor: "#cccccc"
-            }}>
+            <span className="button control-btn is-small is-right" id={this.state.playState} >
               <span className="icon is-small" >
                 <i className={`fas fa-${this.state.playState}`} ></i>
               </span>
