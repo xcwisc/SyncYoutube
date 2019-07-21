@@ -187,7 +187,9 @@ class App extends Component {
               <div className="column is-half">
                 <br />
                 <Switch>
-                  <Route exact path='/' component={Home} />
+                  <Route exact path='/' render={() => (
+                    <Home isAuthenticated={this.state.isAuthenticated} />
+                  )} />
                   <Route exact path='/register' render={() => (
                     <Form
                       formType={'Register'}

@@ -13,7 +13,8 @@ const io = require('socket.io')(server);
 //   host: 'localhost',
 //   port: 6379
 // }));
-const client = redis.createClient();
+// const client = redis.createClient();
+const client = redis.createClient(6379, 'redis');
 
 io.on('connection', (socket) => {
   let room;
