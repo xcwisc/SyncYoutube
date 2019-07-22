@@ -96,8 +96,8 @@ class Room extends Component {
    * helper method that set up socket connection 
    */
   makeSocketConnection() {
-    // const socket = io('http://localhost:8080');
-    const socket = io();
+    const socket = io('http://localhost:8080');
+    // const socket = io();
 
     // register socket events
     socket.on('connect_failed', () => {
