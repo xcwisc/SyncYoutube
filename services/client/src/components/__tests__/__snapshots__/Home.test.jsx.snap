@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`About renders a snapshot properly 1`] = `
+exports[`Home renders a snapshot properly 1`] = `
 <div>
   <h1
     className="title is-1"

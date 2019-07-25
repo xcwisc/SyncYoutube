@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 
 const Form = (props) => {
   if (props.isAuthenticated) {
@@ -47,9 +47,18 @@ const Form = (props) => {
         </div>
         <input
           type="submit"
-          className="button is-primary is-medium is-fullwidth"
+          className="button is-dark is-medium is-fullwidth"
           value="Submit"
         />
+        <div className="field">
+          <br />
+          {props.formType === 'Register' &&
+            <p>Already have an account? Click <Link to="/login">here</Link> to log in.</p>
+          }
+          {props.formType === 'Login' &&
+            <p>Don't have an account? Click <Link to="/register">here</Link> to register.</p>
+          }
+        </div>
       </form>
     </div>
   )
