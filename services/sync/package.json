@@ -17,6 +17,7 @@
     "socket.io-redis": "^5.2.0"
   },
   "devDependencies": {
+    "morgan": "^1.9.1",
     "nodemon": "^1.19.1"
   }
 }

@@ -1,8 +1,8 @@
 const redis = require('redis');
 // const redisAdapter = require('socket.io-redis');
 
-const client = redis.createClient();
-// const client = redis.createClient(6379, 'redis');
+// const client = redis.createClient();
+const client = redis.createClient(6379, 'redis');
 
 module.exports.listen = (app) => {
   const io = require('socket.io').listen(app);
@@ -34,9 +34,15 @@ module.exports.listen = (app) => {
     socket.on('get_status', (data) => {
       // sync with other users in the room when join
       client.llen(room, (err, res) => {
+        if (err) {
+          return;
+        }
         console.log(res);
         if (res > 1) {
           client.lindex(room, 0, (err, res) => {
+            if (err) {
+              return;
+            }
             targetSocketId = res.split(".")[0];
             console.log(`targetSocketId:${targetSocketId}`);
             socket.nsp.connected[targetSocketId].emit('get_status', {
@@ -109,6 +115,9 @@ module.exports.listen = (app) => {
  */
 const updateNameList = (room, socket) => {
   client.lrange(room, 0, -1, (err, res) => {
+    if (err) {
+      return;
+    }
     console.log(res);
     let userList = [];
     res.map((el) => {
