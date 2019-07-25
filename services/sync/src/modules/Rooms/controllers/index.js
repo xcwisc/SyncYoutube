@@ -8,7 +8,8 @@ module.exports.getAllRoomsInfo = (req, res) => {
     if (err) {
       res.status(500).json({
         message: 'fail',
-      })
+      });
+      return;
     }
     let data = [];
     rooms.forEach((room, index) => {
@@ -16,7 +17,8 @@ module.exports.getAllRoomsInfo = (req, res) => {
         if (err) {
           res.status(500).json({
             message: 'fail',
-          })
+          });
+          return;
         }
         let roomInfo = {};
         roomInfo[room] = len;
@@ -31,3 +33,21 @@ module.exports.getAllRoomsInfo = (req, res) => {
     })
   })
 };
+
+module.exports.getRoomInfo = (req, res) => {
+  let room = req.params.room;
+  client.llen(room, (err, len) => {
+    if (err) {
+      res.status(404).json({
+        message: 'room not found',
+      });
+      return;
+    }
+    res.status(200).json({
+      message: 'success',
+      data: {
+        len: len,
+      },
+    });
+  })
+}

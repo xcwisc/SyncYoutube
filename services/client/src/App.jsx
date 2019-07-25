@@ -27,7 +27,7 @@ class App extends Component {
       formData: {
         username: '',
         email: '',
-        password: ''
+        password: '',
       },
       roomInfo: {
         roomName: '',
@@ -156,9 +156,22 @@ class App extends Component {
 
   handleJoinFormSubmit(event) {
     event.preventDefault();
-    const newState = this.state.roomInfo;
-    newState.redirectToRoom = true;
-    this.setState(newState);
+    const url = `http://localhost:8080/api/v1/rooms/${this.state.roomName}`;
+    let confirmed;
+    axios.get(url).then((res) => {
+      if (res.status === 404) {
+        confirmed = window.confirm(`Do you want to create a room named ${this.state.roomName}?`);
+      }
+      else {
+        confirmed = window.confirm(`Do you want to join room ${this.state.roomName} with ${res.data.data.len} other people?`);
+      }
+
+      if (confirmed) {
+        const newState = this.state.roomInfo;
+        newState.redirectToRoom = true;
+        this.setState(newState);
+      }
+    })
   }
 
   // handle '/logout'
