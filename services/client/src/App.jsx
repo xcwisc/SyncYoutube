@@ -43,6 +43,7 @@ class App extends Component {
     this.logoutUser = this.logoutUser.bind(this);
     this.handleJoinFormChange = this.handleJoinFormChange.bind(this);
     this.handleJoinFormSubmit = this.handleJoinFormSubmit.bind(this);
+    this.leaveRoom = this.leaveRoom.bind(this);
   }
 
   componentDidMount() {
@@ -153,6 +154,8 @@ class App extends Component {
     });
   }
 
+  // handle the form on '/join'
+  // set redirectToRoom to redirect to a room
   handleJoinFormSubmit(event) {
     event.preventDefault();
     const newState = this.state.roomInfo;
@@ -174,6 +177,17 @@ class App extends Component {
     //     this.setState(newState);
     //   }
     // })
+  }
+
+  // when a user leaves a room, clear out the state used for '/join' route
+  leaveRoom() {
+    this.setState({
+      roomInfo: {
+        roomName: '',
+        displayName: '',
+        redirectToRoom: false,
+      }
+    });
   }
 
   // handle '/logout'
@@ -255,6 +269,7 @@ class App extends Component {
                   isAuthenticated={this.state.isAuthenticated}
                   roomName={this.state.roomInfo.roomName}
                   displayName={this.state.roomInfo.displayName}
+                  leaveRoom={this.leaveRoom}
                 />)} />
             </Switch>
           </div>

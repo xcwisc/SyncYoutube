@@ -115,6 +115,7 @@ module.exports.listen = (app) => {
  * @param {*} socket 
  */
 const updateNameList = (room, socket) => {
+  // console.log(`data in socket server${Object.keys(socket.nsp.connected)}`);
   client.lrange(room, 0, -1, (err, res) => {
     if (err) {
       return;

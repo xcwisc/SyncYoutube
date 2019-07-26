@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import YouTube from 'react-youtube';
+import { withRouter } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import io from 'socket.io-client';
 
@@ -19,7 +20,9 @@ class Room extends Component {
       playState: 'play',
       userList: [],
       videoId: '2g811Eo7K8U',
-      messages: []
+      messages: [],
+      unListen: null,
+      elapsedTimeinterval: null
     }
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
@@ -30,9 +33,44 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    // if (this.props.isAuthenticated && this.props.roomName !== '') {
-    this.makeSocketConnection();
-    // }
+    if (this.props.isAuthenticated && this.props.roomName !== '') {
+      // set up socket.io client
+      this.makeSocketConnection();
+
+      // listen to route change indicating that a user has left
+      let unListen = this.props.history.listen((location, action) => {
+        this.leaveRoom(location);
+      });
+      this.setState({ unListen: unListen });
+    }
+  }
+
+  componentWillUnmount() {
+    // clean up intervals
+    // this.state.unListen();
+    clearInterval(this.state.elapsedTimeinterval);
+  }
+
+  // leave the room
+  // 1. disconnect socket
+  // 2. call the leaveRoom in App.jsx to clean up data in '/join'
+  leaveRoom(nextLocation) {
+    console.log('room route left');
+    if (this.state.socket) {
+      this.state.socket.disconnect();
+      // this.setState({
+      //   player: null,
+      //   socket: null,
+      //   progress: 0,
+      //   currTime: '0:00',
+      //   duration: '0:00',
+      //   playState: 'play',
+      //   userList: [],
+      //   videoId: '2g811Eo7K8U',
+      //   messages: []
+      // });
+    }
+    this.props.leaveRoom();
   }
 
   /**
@@ -264,10 +302,11 @@ class Room extends Component {
 
     // Start interval to update elapsed time display and
     // the elapsed part of the progress bar every second.
-    setInterval(() => {
+    let elapsedTimeinterval = setInterval(() => {
       this.updateTimerDisplay();
       this.updateProgressBar();
     }, 1000);
+    this.setState({ elapsedTimeinterval: elapsedTimeinterval });
 
     // register event listeners to buttons
     this.addEventListeners();
@@ -408,4 +447,4 @@ class Room extends Component {
   };
 }
 
-export default Room;
+export default withRouter(Room);
