@@ -2,9 +2,9 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 const JoinForm = (props) => {
-  if (!props.isAuthenticated) {
-    return <Redirect to='/login' />
-  }
+  // if (!props.isAuthenticated) {
+  //   return <Redirect to='/login' />
+  // }
   if (props.redirectToRoom) {
     return <Redirect to='/room' />
   }
@@ -37,7 +37,7 @@ const JoinForm = (props) => {
         </div>
         <input
           type="submit"
-          className="button is-dark is-medium is-fullwidth"
+          className="button is-link is-outlined is-medium is-fullwidth"
           value="Submit"
         />
       </form>

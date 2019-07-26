@@ -12,10 +12,6 @@ iframe {
   height: calc(100vh / 2.25);
 }
 
-::-webkit-scrollbar {
-  Transform: rotate(180deg);
-}
-
 .input {
   background-color: #bdbdbd;
 }
@@ -23,12 +19,12 @@ iframe {
 /* Room style */
 .chat-room {
   overflow: auto;
-  height: 376px;
-  max-width: 308px;
-  transform: rotate(180deg);
-  background-color: #909090;
+  height: 436px;
+  width: 71%;
+  background-color: #b1b1b1;
   border-radius: 0.25em;
   margin-top: 6px;
+  border: 2px solid #797878;
 }
 
 .control-btn {
@@ -37,6 +33,18 @@ iframe {
   background-color: #cccccc;
 }
 
-.media {
-  transform: rotate(180deg);
+.message {
+  border: 2px solid #797878;
+  background-color: #cccccc;
+  border-radius: 5px;
+}
+
+.message:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.message::after {
+  content: "";
+  clear: both;
+  display: table;
 }

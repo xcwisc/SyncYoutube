@@ -24,13 +24,15 @@ class Room extends Component {
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
     this._onPlay = this._onPlay.bind(this);
-    this.handleMessageDelete = this.handleMessageDelete.bind(this);
+    this.emojiList = ['heart', 'poop', 'dice-one', 'dice-two',
+      'dice-three', 'dice-four', 'dice-five', 'dice-six', 'money-bill-alt',
+      'money-bill-alt', 'hat-wizard', 'graduation-cap', 'gamepad', 'award', 'bomb', 'bug'];
   }
 
   componentDidMount() {
-    if (this.props.isAuthenticated && this.props.roomName !== '') {
-      this.makeSocketConnection();
-    }
+    // if (this.props.isAuthenticated && this.props.roomName !== '') {
+    this.makeSocketConnection();
+    // }
   }
 
   /**
@@ -86,11 +88,15 @@ class Room extends Component {
       e.preventDefault();
       const message = e.target.message.value;
       const displayName = this.props.displayName;
-      // console.log(message);
+      // randomly generate an emoji
+      const emoji = this.emojiList[Math.floor(Math.random() * this.emojiList.length)];
       this.state.socket.emit('chat', {
         message: message,
-        displayName: displayName
+        displayName: displayName,
+        emoji: emoji
       });
+      // clear out the input field
+      e.target.message.value = '';
     });
   }
 
@@ -98,8 +104,8 @@ class Room extends Component {
    * helper method that set up socket connection 
    */
   makeSocketConnection() {
-    // const socket = io('http://localhost:8080');
-    const socket = io();
+    const socket = io('http://localhost:8080');
+    // const socket = io();
 
     // register socket events
     socket.on('connect_failed', () => {
@@ -192,13 +198,18 @@ class Room extends Component {
     socket.on('chat', (data) => {
       let messages = this.state.messages;
       if (messages.length > 10) {
-        messages = messages.slice(0, messages.length - 2);
+        messages.splice(0, 1);
       }
-      messages.unshift({
+      messages.push({
         message: data.message,
-        displayName: data.displayName
+        displayName: data.displayName,
+        emoji: data.emoji
       });
       this.setState({ messages: messages });
+
+      // scroll chat room to the bottom
+      let chatRoom = document.querySelector(".chat-room");
+      chatRoom.scrollTop = chatRoom.scrollHeight;
     })
 
     // save the socket to the state for future use
@@ -237,16 +248,6 @@ class Room extends Component {
     let seconds = time - minutes * 60;
     seconds = seconds < 10 ? '0' + seconds : seconds;
     return minutes + ":" + seconds;
-  }
-
-  /**
-   * event handler for a message deletion.
-   */
-  handleMessageDelete(e, index) {
-    let messages = this.state.messages;
-    console.log(index);
-    messages.splice(index, 1);
-    this.setState({ messages: messages });
   }
 
   _onReady(event) {
@@ -305,11 +306,11 @@ class Room extends Component {
         controls: 0,
       }
     };
-    if (!this.props.isAuthenticated) {
-      return <Redirect to='/login' />
-    } else if (this.props.roomName === '') {
-      return <Redirect to='/join' />
-    }
+    // if (!this.props.isAuthenticated) {
+    //   return <Redirect to='/login' />
+    // } else if (this.props.roomName === '') {
+    //   return <Redirect to='/join' />
+    // }
     return (
       <div>
         <div className="columns">
@@ -330,14 +331,19 @@ class Room extends Component {
             <br></br>
             <br></br>
             <form id="videoId-form">
-              <div className="field has-addons">
-                <div className="control">
-                  <input className="input" type="text" placeholder="Video Id" name="videoId" />
+              <div className="field">
+                <div className="control" style={{ display: "inline" }}>
+                  <input className="input"
+                    type="text"
+                    placeholder="Video Id"
+                    name="videoId"
+                    required
+                    style={{ width: "45%" }} />
                 </div>
-                <div className="control">
+                <div className="control" style={{ display: "inline" }}>
                   <input
                     type="submit"
-                    className="button is-dark"
+                    className="button is-link is-outlined"
                     value="Find a video"
                   />
                 </div>
@@ -350,7 +356,7 @@ class Room extends Component {
                     key={index}
                     message={message.message}
                     displayName={message.displayName}
-                    handleMessageDelete={this.handleMessageDelete}
+                    emoji={message.emoji}
                     index={index}
                   />
                 )
@@ -375,14 +381,21 @@ class Room extends Component {
           </div>
           <div className="column is-4" style={{ paddingTop: "0px" }}>
             <form id="sendMessage-form">
-              <div className="field has-addons">
-                <div className="control">
-                  <input className="input" type="text" placeholder="Say something" name="message" />
+              <div className="field">
+                <div className="control" style={{ display: "inline" }}>
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="Say something"
+                    name="message"
+                    required
+                    style={{ width: "43%" }}
+                  />
                 </div>
-                <div className="control">
+                <div className="control" style={{ display: "inline" }}>
                   <input
                     type="submit"
-                    className="button is-dark"
+                    className="button is-link is-outlined"
                     value="Send to room"
                   />
                 </div>

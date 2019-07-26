@@ -47,7 +47,7 @@ const Form = (props) => {
         </div>
         <input
           type="submit"
-          className="button is-dark is-medium is-fullwidth"
+          className="button is-link is-outlined is-medium is-fullwidth"
           value="Submit"
         />
         <div className="field">

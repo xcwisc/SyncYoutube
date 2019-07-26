@@ -2,21 +2,13 @@ import React from 'react';
 
 const Message = (props) => {
   return (
-    <article className="media" >
-      <div className="media-content">
-        <div className="content">
-          <p>
-            <strong>{props.displayName}</strong>
-            <span className="icon is-small"><i className="fas fa-heart"></i></span>
-            <br />
-            {props.message}
-          </p>
-        </div>
+    <div className="message">
+      <div className="content">
+        <strong>{props.displayName}</strong><span>  </span>
+        <span className="icon is-small"><i className={`fas fa-${props.emoji}`}></i></span>
       </div>
-      <div className="media-right">
-        <button className="delete" onClick={(e) => props.handleMessageDelete(e, props.index)}></button>
-      </div>
-    </article>
+      {props.message}
+    </div>
   )
 }
 

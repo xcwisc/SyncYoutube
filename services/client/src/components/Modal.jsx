@@ -3,7 +3,7 @@ import React from 'react';
 const Modal = (props) => {
   return (
     <span style={{ float: 'right' }}>
-      <button className="button is-dark" onClick={(e) => handleModalBtnClick(e)}>People in the room</button>
+      <button className="button is-link is-outlined" onClick={(e) => handleModalBtnClick(e)}>People in the room</button>
       <div className="modal">
         <div className="modal-background"></div>
         <div className="modal-card">
