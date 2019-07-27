@@ -47,7 +47,7 @@ class Room extends Component {
 
   componentWillUnmount() {
     // clean up intervals
-    // this.state.unListen();
+    this.state.unListen();
     clearInterval(this.state.elapsedTimeinterval);
   }
 
@@ -58,17 +58,17 @@ class Room extends Component {
     console.log('room route left');
     if (this.state.socket) {
       this.state.socket.disconnect();
-      // this.setState({
-      //   player: null,
-      //   socket: null,
-      //   progress: 0,
-      //   currTime: '0:00',
-      //   duration: '0:00',
-      //   playState: 'play',
-      //   userList: [],
-      //   videoId: '2g811Eo7K8U',
-      //   messages: []
-      // });
+      this.setState({
+        player: null,
+        socket: null,
+        progress: 0,
+        currTime: '0:00',
+        duration: '0:00',
+        playState: 'play',
+        userList: [],
+        videoId: '2g811Eo7K8U',
+        messages: []
+      });
     }
     this.props.leaveRoom();
   }
@@ -112,11 +112,16 @@ class Room extends Component {
       this.state.player.seekTo(newTime);
     });
 
-    const videoIdForm = document.querySelector('#videoId-form');
-    videoIdForm.addEventListener('submit', (e) => {
+    const videoUrlForm = document.querySelector('#videoUrl-form');
+    videoUrlForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const videoId = e.target.videoId.value;
-      console.log(videoId);
+      const videoUrl = e.target.videoUrl.value;
+      let videoId;
+      if (videoUrl.split('?').length === 1) {
+        videoId = videoUrl;
+      } else {
+        videoId = videoUrl.split('?')[1].split('v=')[1].split('&')[0];
+      }
       this.state.socket.emit('change_video', { videoId: videoId });
       this.setState({ videoId: videoId });
     });
@@ -185,9 +190,6 @@ class Room extends Component {
     socket.on('set_status', (data) => {
       console.log(data);
       this.setState({ videoId: data.videoId });
-      // console.log(this.state);
-      // console.log(this.state.player.getVideoData());
-      // console.log(this.state.player.getVideoUrl());
       this.waitFor(_ => data.videoId === this.state.player.getVideoData().video_id && this.state.player.getDuration() !== 0)
         .then(_ => {
           this.state.player.seekTo(data.currTime);
@@ -235,7 +237,7 @@ class Room extends Component {
     // evokes when some other user send a chat message
     socket.on('chat', (data) => {
       let messages = this.state.messages;
-      if (messages.length > 10) {
+      if (messages.length > 20) {
         messages.splice(0, 1);
       }
       messages.push({
@@ -369,22 +371,33 @@ class Room extends Component {
           <div className="column is-4 is-grey-lighter">
             <br></br>
             <br></br>
-            <form id="videoId-form">
+            <form id="videoUrl-form">
               <div className="field">
                 <div className="control" style={{ display: "inline" }}>
                   <input className="input"
                     type="text"
-                    placeholder="Video Id"
-                    name="videoId"
+                    placeholder="Enter a Video's Url"
+                    name="videoUrl"
                     required
-                    style={{ width: "45%" }} />
+                    style={{ width: "40%" }} />
                 </div>
                 <div className="control" style={{ display: "inline" }}>
                   <input
                     type="submit"
                     className="button is-link is-outlined"
-                    value="Find a video"
+                    value="Watch"
                   />
+                </div>
+                <div className="control" style={{ display: "inline", marginLeft: "6%" }}>
+                  <a className="button is-link is-outlined"
+                    title="Find a video on YouTube"
+                    href="https://www.youtube.com"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <span className="icon is-small">
+                      <i className="fas fa-search"></i>
+                    </span>
+                  </a>
                 </div>
               </div>
             </form>

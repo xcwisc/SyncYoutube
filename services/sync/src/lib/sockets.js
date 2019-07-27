@@ -91,7 +91,7 @@ module.exports.listen = (app) => {
     });
 
     socket.on('chat', (data) => {
-      console.log('chat message received');
+      // console.log('chat message received');
       socket.nsp.to(room).emit('chat', {
         message: data.message,
         displayName: data.displayName,

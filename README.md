@@ -8,13 +8,13 @@
 - [x] Brighten buttons' color
 - [x] Make it unable to send blanks strings to the chat
 - [x] Fix chat room's scrollbar
-- [ ] Embed Video's title
-- [ ] Add link to youtube for finding videos
-- [ ] Some user may make new connections without disconnecting
-- [ ] Unable to play some video
-- [ ] Fix authentication system
+- [x] Embed Video's title
+- [x] Add link to youtube for finding videos
+- [x] Some user may make new connections without disconnecting
 
 ### TODOS (future version)
+- [ ] Fix authentication system
+- [ ] Unable to play some video
 - [ ] Add watch history
 - [ ] Add wechat link for joining the room
 - [ ] Add support for Bilibili
