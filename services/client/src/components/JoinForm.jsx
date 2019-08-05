@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const JoinForm = (props) => {
   // if (!props.isAuthenticated) {
@@ -45,4 +46,12 @@ const JoinForm = (props) => {
   )
 };
 
+JoinForm.prototype = {
+  redirectToRoom: PropTypes.bool.isRequired,
+  handleJoinFormSubmit: PropTypes.func.isRequired,
+  handleJoinFormChange: PropTypes.func.isRequired,
+  roomName: PropTypes.string.isRequired,
+  displayName: PropTypes.string.isRequired,
+  isAuthenticated: PropTypes.bool.isRequired
+}
 export default JoinForm;

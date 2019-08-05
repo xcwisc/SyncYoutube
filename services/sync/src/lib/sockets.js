@@ -92,10 +92,11 @@ module.exports.listen = (app) => {
 
     socket.on('chat', (data) => {
       // console.log('chat message received');
-      socket.nsp.to(room).emit('chat', {
+      socket.broadcast.to(room).emit('chat', {
         message: data.message,
         displayName: data.displayName,
-        emoji: data.emoji
+        emoji: data.emoji,
+        selfSend: data.selfSend
       });
     });
 

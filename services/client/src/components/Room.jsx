@@ -33,16 +33,16 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    if (this.props.isAuthenticated && this.props.roomName !== '') {
-      // set up socket.io client
-      this.makeSocketConnection();
+    // if (this.props.isAuthenticated && this.props.roomName !== '') {
+    // set up socket.io client
+    this.makeSocketConnection();
 
-      // listen to route change indicating that a user has left
-      let unListen = this.props.history.listen((location, action) => {
-        this.leaveRoom(location);
-      });
-      this.setState({ unListen: unListen });
-    }
+    // listen to route change indicating that a user has left
+    let unListen = this.props.history.listen((location, action) => {
+      this.leaveRoom(location);
+    });
+    this.setState({ unListen: unListen });
+    // }
   }
 
   componentWillUnmount() {
@@ -124,6 +124,7 @@ class Room extends Component {
       }
       this.state.socket.emit('change_video', { videoId: videoId });
       this.setState({ videoId: videoId });
+      e.target.videoUrl.value = '';
     });
 
     const sendMessageForm = document.querySelector('#sendMessage-form');
@@ -131,13 +132,29 @@ class Room extends Component {
       e.preventDefault();
       const message = e.target.message.value;
       const displayName = this.props.displayName;
+
       // randomly generate an emoji
       const emoji = this.emojiList[Math.floor(Math.random() * this.emojiList.length)];
       this.state.socket.emit('chat', {
         message: message,
         displayName: displayName,
-        emoji: emoji
+        emoji: emoji,
+        selfSend: false
       });
+
+      // push the message to the state store
+      let messages = this.state.messages;
+      if (messages.length > 20) {
+        messages.splice(0, 1);
+      }
+      messages.push({
+        message: message,
+        displayName: displayName,
+        emoji: emoji,
+        selfSend: true
+      });
+      this.setState({ messages: messages });
+
       // clear out the input field
       e.target.message.value = '';
     });
@@ -243,7 +260,8 @@ class Room extends Component {
       messages.push({
         message: data.message,
         displayName: data.displayName,
-        emoji: data.emoji
+        emoji: data.emoji,
+        selfSend: data.selfSend,
       });
       this.setState({ messages: messages });
 
@@ -409,7 +427,7 @@ class Room extends Component {
                     message={message.message}
                     displayName={message.displayName}
                     emoji={message.emoji}
-                    index={index}
+                    selfSend={message.selfSend}
                   />
                 )
               })}

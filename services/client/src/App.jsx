@@ -15,8 +15,6 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      title: 'SyncYoutube',
-      users: [],
       userInfo: {
         username: '',
         email: '',
@@ -36,8 +34,7 @@ class App extends Component {
       },
       isAuthenticated: false,
     };
-    // this.addUser = this.addUser.bind(this);
-    // this.handleAddUserFormInput = this.handleAddUserFormInput.bind(this);
+
     this.handleUserFormSubmit = this.handleUserFormSubmit.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
     this.logoutUser = this.logoutUser.bind(this);
@@ -47,14 +44,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // this.getUsers();
+
   }
-  // get all the users and update the user list
-  // getUsers() {
-  //   axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
-  //     .then((res) => { this.setState({ users: res.data.data.users }); })
-  //     .catch((err) => { console.log(err); });
-  // }
 
   // get a logedin user's info
   getUserStatus() {
@@ -90,30 +81,6 @@ class App extends Component {
       email: ''
     });
   };
-
-  // add a user at the home route
-  // addUser(event) {
-  //   event.preventDefault();
-  //   const data = {
-  //     username: this.state.username,
-  //     email: this.state.email
-  //   };
-  //   axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
-  //     .then((res) => {
-  //       // update the userList
-  //       this.getUsers();
-  //       // clear out the form
-  //       this.setState({ username: '', email: '' });
-  //     })
-  //     .catch((err) => console.log(err));
-  // }
-
-  // bind the form with state on the main route that add a user
-  // handleAddUserFormInput(event) {
-  //   const newState = {};
-  //   newState[event.target.name] = event.target.value;
-  //   this.setState(newState);
-  // }
 
   // bind the form with state on '/register' and '/login'
   handleFormChange(event) {
@@ -208,8 +175,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <Navbar title={this.state.title}
-          isAuthenticated={this.state.isAuthenticated} />
+        <Navbar isAuthenticated={this.state.isAuthenticated} />
         <section className="section">
           <div className="container">
             <div className="columns">
@@ -240,7 +206,6 @@ class App extends Component {
                   <Route exact path='/logout' render={() => (
                     <Logout
                       logoutUser={this.logoutUser}
-                      isAuthenticated={this.state.isAuthenticated}
                     />
                   )} />
                   <Route exact path='/status' render={() => (

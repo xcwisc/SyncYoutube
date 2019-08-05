@@ -34,9 +34,13 @@ iframe {
 }
 
 .message {
-  border: 2px solid #797878;
   background-color: #cccccc;
   border-radius: 5px;
+}
+
+.self-send {
+  background-color: #7687a0;
+  color: #e4d2d2;
 }
 
 .message:not(:last-child) {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect, Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const Form = (props) => {
   if (props.isAuthenticated) {
@@ -64,4 +65,15 @@ const Form = (props) => {
   )
 }
 
+Form.prototype = {
+  isAuthenticated: PropTypes.bool.isRequired,
+  formType: PropTypes.string.isRequired,
+  handleUserFormSubmit: PropTypes.func.isRequired,
+  handleFormChange: PropTypes.func.isRequired,
+  formData: PropTypes.shape({
+    username: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    password: PropTypes.string.isRequired
+  }).isRequired
+}
 export default Form;
