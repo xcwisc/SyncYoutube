@@ -21,15 +21,13 @@ class Room extends Component {
       userList: [],
       videoId: '2g811Eo7K8U',
       messages: [],
+      emoji: '',
       unListen: null,
-      elapsedTimeinterval: null
+      elapsedTimeinterval: null,
     }
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
     this._onPlay = this._onPlay.bind(this);
-    this.emojiList = ['heart', 'poop', 'dice-one', 'dice-two',
-      'dice-three', 'dice-four', 'dice-five', 'dice-six', 'money-bill-alt',
-      'money-bill-alt', 'hat-wizard', 'graduation-cap', 'gamepad', 'award', 'bomb', 'bug'];
   }
 
   componentDidMount() {
@@ -67,7 +65,8 @@ class Room extends Component {
         playState: 'play',
         userList: [],
         videoId: '2g811Eo7K8U',
-        messages: []
+        messages: [],
+        emoji: ''
       });
     }
     this.props.leaveRoom();
@@ -133,12 +132,10 @@ class Room extends Component {
       const message = e.target.message.value;
       const displayName = this.props.displayName;
 
-      // randomly generate an emoji
-      const emoji = this.emojiList[Math.floor(Math.random() * this.emojiList.length)];
       this.state.socket.emit('chat', {
         message: message,
         displayName: displayName,
-        emoji: emoji,
+        emoji: this.state.emoji,
         selfSend: false
       });
 
@@ -150,10 +147,14 @@ class Room extends Component {
       messages.push({
         message: message,
         displayName: displayName,
-        emoji: emoji,
+        emoji: this.state.emoji,
         selfSend: true
       });
       this.setState({ messages: messages });
+
+      // scroll chat room to the bottom
+      let chatRoom = document.querySelector(".chat-room");
+      chatRoom.scrollTop = chatRoom.scrollHeight;
 
       // clear out the input field
       e.target.message.value = '';
@@ -179,6 +180,12 @@ class Room extends Component {
         room: this.props.roomName,
         displayName: this.props.displayName
       });
+
+      // randomly generate an emoji for this user
+      const emojiList = ['heart', 'poop', 'money-bill-alt',
+        'money-bill-alt', 'hat-wizard', 'graduation-cap', 'gamepad', 'award', 'bomb', 'bug'];
+      const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+      this.setState({ emoji: emoji });
     });
 
     // evokes when the client is disconnected from the sync server
@@ -373,7 +380,7 @@ class Room extends Component {
     return (
       <div>
         <div className="columns">
-          <div className="column is-8">
+          <div className="column is-9">
             <h2 className="title is-2">Room: {this.props.roomName}
               <Modal userList={this.state.userList}></Modal>
             </h2>
@@ -386,7 +393,7 @@ class Room extends Component {
               onPlay={this._onPlay}
             />
           </div>
-          <div className="column is-4 is-grey-lighter">
+          <div className="column is-3 is-grey-lighter">
             <br></br>
             <br></br>
             <form id="videoUrl-form">
@@ -443,13 +450,13 @@ class Room extends Component {
               </span>
             </span>
           </div>
-          <div className="column is-6">
+          <div className="column is-7">
             <progress className="progress is-small" value={this.state.progress} max="100"></progress>
           </div>
           <div className="column is-1" style={{ padding: '6px' }}>
             <span>{this.state.currTime}/{this.state.duration}</span>
           </div>
-          <div className="column is-4" style={{ paddingTop: "0px" }}>
+          <div className="column is-3" style={{ paddingTop: "0px" }}>
             <form id="sendMessage-form">
               <div className="field">
                 <div className="control" style={{ display: "inline" }}>

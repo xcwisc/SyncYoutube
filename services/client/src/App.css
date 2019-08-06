@@ -9,7 +9,7 @@ hr {
 
 iframe {
   width: 100vh;
-  height: calc(100vh / 2.25);
+  height: 46vh;
 }
 
 .input {
@@ -20,7 +20,6 @@ iframe {
 .chat-room {
   overflow: auto;
   height: 436px;
-  width: 71%;
   background-color: #b1b1b1;
   border-radius: 0.25em;
   margin-top: 6px;

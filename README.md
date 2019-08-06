@@ -17,14 +17,14 @@
 ### V1.2
 - [x] Change video input clear onSubmit
 - [x] Differentiate chats sent by a user himself and others
-- [ ] Bind emoji with users
-- [ ] Fix the slow loading caused by fontawsome
+- [x] Bind emoji with users
 - [ ] Add watch history
 - [ ] Differentiate creating a room and joining a room
 - [ ] Add password when joining a room
 
 
 ### TODOS (future version)
+- [ ] Fix the slow loading caused by fontawsome
 - [ ] Fix authentication system
 - [ ] Unable to play some video
 - [ ] Add wechat link for joining the room
