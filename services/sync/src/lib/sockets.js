@@ -1,8 +1,8 @@
 const redis = require('redis');
 // const redisAdapter = require('socket.io-redis');
 
-const client = redis.createClient();
-// const client = redis.createClient(6379, 'redis');
+// const client = redis.createClient();
+const client = redis.createClient(6379, 'redis');
 
 module.exports.listen = (app) => {
   const io = require('socket.io').listen(app);

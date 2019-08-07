@@ -3,36 +3,31 @@ import PropTypes from 'prop-types';
 
 const Modal = (props) => {
   return (
-    <span style={{ float: 'right' }}>
-      <button className="button is-link is-outlined" onClick={(e) => handleModalBtnClick(e)}>People in the room</button>
-      <div className="modal">
+    <span>
+      {props.modalId === 'history' ?
+        <button className="button is-link is-outlined"
+          title="Watch History"
+          onClick={(e) => handleModalBtnClick(e, props.modalId)}
+          style={{ width: "14%" }}>
+          <span className="icon is-small">
+            <i className="fas fa-history"></i>
+          </span>
+        </button> :
+        <button className="button is-link is-outlined"
+          onClick={(e) => handleModalBtnClick(e, props.modalId)}
+          style={{ float: 'right' }}>{props.modalTitle}
+        </button>
+      }
+
+      <div className="modal" id={props.modalId}>
         <div className="modal-background"></div>
         <div className="modal-card">
           <header className="modal-card-head">
-            <p className="modal-card-title">People in the room</p>
-            <button className="delete" aria-label="close" onClick={(e) => handleModalCloseBtnClick(e)}></button>
+            <strong className="modal-card-title">{props.modalTitle}</strong>
+            <button className="delete" aria-label="close" onClick={(e) => handleModalCloseBtnClick(e, props.modalId)}></button>
           </header>
           <section className="modal-card-body">
-            <table className="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
-              <thead>
-                <tr>
-                  <th><abbr title="Position">Pos</abbr></th>
-                  <th>Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  props.userList.map((user, index) => {
-                    return (
-                      <tr key={index}>
-                        <th>{index + 1}</th>
-                        <td>{user.displayName}</td>
-                      </tr>
-                    )
-                  })
-                }
-              </tbody>
-            </table>
+            {props.children}
           </section>
         </div>
       </div>
@@ -40,24 +35,22 @@ const Modal = (props) => {
   )
 }
 
-const handleModalBtnClick = (e) => {
-  const modal = document.querySelector('.modal');
+const handleModalBtnClick = (e, modalId) => {
+  const modal = document.querySelector(`.modal#${modalId}`);
   const rootEl = document.documentElement;
   rootEl.classList.add('is-clipped');
   modal.classList.add("is-active");
 }
 
-const handleModalCloseBtnClick = (e) => {
-  const modal = document.querySelector('.modal');
+const handleModalCloseBtnClick = (e, modalId) => {
+  const modal = document.querySelector(`.modal#${modalId}`);
   const rootEl = document.documentElement;
   rootEl.classList.remove('is-clipped');
   modal.classList.remove("is-active");
 }
 
 Modal.prototype = {
-  userList: PropTypes.arrayOf(PropTypes.shape({
-    displayName: PropTypes.string.isRequired,
-    id: PropTypes.string
-  })).isRequired
+  modalId: PropTypes.string.isRequired,
+  modalTitle: PropTypes.string,
 }
 export default Modal;

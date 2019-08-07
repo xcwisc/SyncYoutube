@@ -8,8 +8,8 @@ hr {
 }
 
 iframe {
-  width: 100vh;
-  height: 46vh;
+  width: 106vh;
+  height: 54vh;
 }
 
 .input {
@@ -19,7 +19,7 @@ iframe {
 /* Room style */
 .chat-room {
   overflow: auto;
-  height: 436px;
+  height: 424px;
   background-color: #b1b1b1;
   border-radius: 0.25em;
   margin-top: 6px;
@@ -50,4 +50,14 @@ iframe {
   content: "";
   clear: both;
   display: table;
+}
+
+/* watch history style */
+.video-title {
+  max-height: 4.8rem;
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 2.4rem;
+  text-overflow: ellipsis;
 }

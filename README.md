@@ -19,6 +19,7 @@
 - [x] Differentiate chats sent by a user himself and others
 - [x] Bind emoji with users
 - [ ] Add watch history
+- [ ] Flash a message to the chat when a user join the room
 - [ ] Differentiate creating a room and joining a room
 - [ ] Add password when joining a room
 

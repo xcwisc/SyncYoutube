@@ -6,6 +6,7 @@ import io from 'socket.io-client';
 
 import Modal from './Modal';
 import Message from './Message';
+import HistoryItem from './HistoryItem';
 
 class Room extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ class Room extends Component {
       duration: '0:00',
       playState: 'play',
       userList: [],
+      videoHistory: [],
       videoId: '2g811Eo7K8U',
       messages: [],
       emoji: '',
@@ -64,6 +66,7 @@ class Room extends Component {
         duration: '0:00',
         playState: 'play',
         userList: [],
+        videoHistory: [],
         videoId: '2g811Eo7K8U',
         messages: [],
         emoji: ''
@@ -122,7 +125,13 @@ class Room extends Component {
         videoId = videoUrl.split('?')[1].split('v=')[1].split('&')[0];
       }
       this.state.socket.emit('change_video', { videoId: videoId });
-      this.setState({ videoId: videoId });
+
+      // get the current title for history purpose
+      const videoTitle = this.state.player.getVideoData().title;
+      this.setState({
+        videoHistory: [...this.state.videoHistory, { videoId: this.state.videoId, videoTitle: videoTitle }],
+        videoId: videoId,
+      });
       e.target.videoUrl.value = '';
     });
 
@@ -165,8 +174,8 @@ class Room extends Component {
    * helper method that set up socket connection 
    */
   makeSocketConnection() {
-    const socket = io('http://localhost:8080');
-    // const socket = io();
+    // const socket = io('http://localhost:8080');
+    const socket = io();
 
     // register socket events
     socket.on('connect_failed', () => {
@@ -255,7 +264,12 @@ class Room extends Component {
     // evokes when some other user changes a video
     socket.on('change_video', (data) => {
       const videoId = data.videoId;
-      this.setState({ videoId: videoId });
+      // get the current title for history purpose
+      const videoTitle = this.state.player.getVideoData().title;
+      this.setState({
+        videoHistory: [...this.state.videoHistory, { videoId: this.state.videoId, videoTitle: videoTitle }],
+        videoId: videoId,
+      });
     })
 
     // evokes when some other user send a chat message
@@ -382,7 +396,28 @@ class Room extends Component {
         <div className="columns">
           <div className="column is-9">
             <h2 className="title is-2">Room: {this.props.roomName}
-              <Modal userList={this.state.userList}></Modal>
+              <Modal modalTitle="People in the room" modalId="people">
+                <table className="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+                  <thead>
+                    <tr>
+                      <th><abbr title="Position">Pos</abbr></th>
+                      <th>Name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      this.state.userList.map((user, index) => {
+                        return (
+                          <tr key={index}>
+                            <th>{index + 1}</th>
+                            <td>{user.displayName}</td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </Modal>
             </h2>
             <hr></hr>
             <YouTube
@@ -396,36 +431,47 @@ class Room extends Component {
           <div className="column is-3 is-grey-lighter">
             <br></br>
             <br></br>
-            <form id="videoUrl-form">
-              <div className="field">
-                <div className="control" style={{ display: "inline" }}>
-                  <input className="input"
-                    type="text"
-                    placeholder="Enter a Video's Url"
-                    name="videoUrl"
-                    required
-                    style={{ width: "40%" }} />
-                </div>
-                <div className="control" style={{ display: "inline" }}>
-                  <input
-                    type="submit"
-                    className="button is-link is-outlined"
-                    value="Watch"
-                  />
-                </div>
-                <div className="control" style={{ display: "inline", marginLeft: "6%" }}>
-                  <a className="button is-link is-outlined"
-                    title="Find a video on YouTube"
-                    href="https://www.youtube.com"
-                    target="_blank"
-                    rel="noopener noreferrer">
-                    <span className="icon is-small">
-                      <i className="fas fa-search"></i>
-                    </span>
-                  </a>
-                </div>
+            <br></br>
+            <form id="videoUrl-form" style={{ display: "inline" }}>
+              <div className="control" style={{ display: "inline" }}>
+                <input className="input"
+                  type="text"
+                  placeholder="Video Url or Id"
+                  name="videoUrl"
+                  required
+                  style={{ width: "46%" }} />
+              </div>
+              <div className="control" style={{ display: "inline" }}>
+                <input
+                  type="submit"
+                  className="button is-link is-outlined"
+                  value="Go"
+                  style={{ width: "14%" }}
+                />
               </div>
             </form>
+            <div className="control" style={{ display: "inline", marginLeft: "10%" }}>
+              <Modal modalId="history" modalTitle="Watch History">
+                {this.state.videoHistory.map((videoItem, index) => {
+                  return (<HistoryItem
+                    videoId={videoItem.videoId}
+                    videoTitle={videoItem.videoTitle}
+                    key={index}></HistoryItem>)
+                })}
+              </Modal>
+            </div>
+            <div className="control" style={{ display: "inline", marginLeft: "2%" }}>
+              <a className="button is-link is-outlined"
+                title="Find a video on YouTube"
+                href="https://www.youtube.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ width: "14%" }}>
+                <span className="icon is-small">
+                  <i className="fas fa-search"></i>
+                </span>
+              </a>
+            </div>
             <div className="chat-room" >
               {this.state.messages.map((message, index) => {
                 return (
@@ -466,14 +512,15 @@ class Room extends Component {
                     placeholder="Say something"
                     name="message"
                     required
-                    style={{ width: "43%" }}
+                    style={{ width: "76%" }}
                   />
                 </div>
                 <div className="control" style={{ display: "inline" }}>
                   <input
                     type="submit"
                     className="button is-link is-outlined"
-                    value="Send to room"
+                    value="Send"
+                    style={{ width: "24%" }}
                   />
                 </div>
               </div>
