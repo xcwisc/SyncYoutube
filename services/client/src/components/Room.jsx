@@ -30,6 +30,8 @@ class Room extends Component {
     this._onReady = this._onReady.bind(this);
     this._onPause = this._onPause.bind(this);
     this._onPlay = this._onPlay.bind(this);
+    this.handleDeleteHistory = this.handleDeleteHistory.bind(this);
+    this.handleClickHistory = this.handleClickHistory.bind(this);
   }
 
   componentDidMount() {
@@ -118,20 +120,17 @@ class Room extends Component {
     videoUrlForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const videoUrl = e.target.videoUrl.value;
+
+      // parse out videoId
       let videoId;
       if (videoUrl.split('?').length === 1) {
         videoId = videoUrl;
       } else {
         videoId = videoUrl.split('?')[1].split('v=')[1].split('&')[0];
       }
-      this.state.socket.emit('change_video', { videoId: videoId });
 
-      // get the current title for history purpose
-      const videoTitle = this.state.player.getVideoData().title;
-      this.setState({
-        videoHistory: [...this.state.videoHistory, { videoId: this.state.videoId, videoTitle: videoTitle }],
-        videoId: videoId,
-      });
+      this.state.socket.emit('change_video', { videoId: videoId });
+      this.changeVideo(videoId);
       e.target.videoUrl.value = '';
     });
 
@@ -264,12 +263,7 @@ class Room extends Component {
     // evokes when some other user changes a video
     socket.on('change_video', (data) => {
       const videoId = data.videoId;
-      // get the current title for history purpose
-      const videoTitle = this.state.player.getVideoData().title;
-      this.setState({
-        videoHistory: [...this.state.videoHistory, { videoId: this.state.videoId, videoTitle: videoTitle }],
-        videoId: videoId,
-      });
+      this.changeVideo(videoId);
     })
 
     // evokes when some other user send a chat message
@@ -327,6 +321,48 @@ class Room extends Component {
     let seconds = time - minutes * 60;
     seconds = seconds < 10 ? '0' + seconds : seconds;
     return minutes + ":" + seconds;
+  }
+
+  /**
+   * helper method that changes the video and save the current video for history to the state.
+   */
+  changeVideo(videoId) {
+    // get the current title for history purpose
+    const videoInfo = this.state.player.getVideoData();
+    const videoTitle = videoInfo.title;
+    const videoAuthor = videoInfo.author;
+    this.setState({
+      videoHistory: [...this.state.videoHistory, {
+        videoId: this.state.videoId,
+        videoTitle: videoTitle,
+        videoAuthor: videoAuthor
+      }],
+      videoId: videoId,
+    });
+  }
+
+  /**
+   * handler for clicking a history item
+   */
+  handleClickHistory(videoId) {
+    this.state.socket.emit('change_video', { videoId: videoId });
+    this.changeVideo(videoId);
+    // close the modal
+    const modal = document.querySelector(`.modal#history`);
+    const rootEl = document.documentElement;
+    rootEl.classList.remove('is-clipped');
+    modal.classList.remove("is-active");
+  }
+
+  /**
+   * handler for deleting a history item
+   */
+  handleDeleteHistory(e, historyIndex) {
+    let videoHistory = this.state.videoHistory;
+    videoHistory.splice(historyIndex, 1);
+    this.setState({
+      videoHistory: videoHistory
+    });
   }
 
   _onReady(event) {
@@ -452,12 +488,18 @@ class Room extends Component {
             </form>
             <div className="control" style={{ display: "inline", marginLeft: "10%" }}>
               <Modal modalId="history" modalTitle="Watch History">
-                {this.state.videoHistory.map((videoItem, index) => {
-                  return (<HistoryItem
-                    videoId={videoItem.videoId}
-                    videoTitle={videoItem.videoTitle}
-                    key={index}></HistoryItem>)
-                })}
+                <div className="container" style={{ width: "100%" }}>
+                  {this.state.videoHistory.map((videoItem, index) => {
+                    return (<HistoryItem
+                      videoId={videoItem.videoId}
+                      videoTitle={videoItem.videoTitle}
+                      videoAuthor={videoItem.videoAuthor}
+                      handleDeleteHistory={this.handleDeleteHistory}
+                      handleClickHistory={this.handleClickHistory}
+                      historyIndex={index}
+                      key={index}></HistoryItem>)
+                  })}
+                </div>
               </Modal>
             </div>
             <div className="control" style={{ display: "inline", marginLeft: "2%" }}>

@@ -53,11 +53,10 @@ iframe {
 }
 
 /* watch history style */
-.video-title {
-  max-height: 4.8rem;
-  overflow: hidden;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 2.4rem;
-  text-overflow: ellipsis;
+.history-video-author {
+  font-size: small;
+}
+
+.history-item:hover {
+  cursor: pointer;
 }

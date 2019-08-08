@@ -1,6 +1,6 @@
 # SyncYoutube
 
-[![Build Status](https://travis-ci.org/xcwisc/Docker-microservices-practice.svg?branch=master)](https://travis-ci.com/xcwisc/Docker-microservices-practice)
+[![Build Status](https://travis-ci.com/xcwisc/SyncYoutube.svg?branch=master)](https://travis-ci.com/xcwisc/SyncYoutube.svg?branch=master)
 
 ## TODOS 
 
@@ -18,8 +18,9 @@
 - [x] Change video input clear onSubmit
 - [x] Differentiate chats sent by a user himself and others
 - [x] Bind emoji with users
-- [ ] Add watch history
+- [x] Add watch history
 - [ ] Flash a message to the chat when a user join the room
+- [ ] Flash a message to the chat when a user make change to the video
 - [ ] Differentiate creating a room and joining a room
 - [ ] Add password when joining a room
 
