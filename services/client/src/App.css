@@ -32,12 +32,18 @@ iframe {
   background-color: #cccccc;
 }
 
+/* message style */
 .message {
   background-color: #cccccc;
   border-radius: 5px;
 }
 
 .self-send {
+  background-color: #6b948d;
+  color: #e4d2d2;
+}
+
+.system-send {
   background-color: #7687a0;
   color: #e4d2d2;
 }

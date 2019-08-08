@@ -129,7 +129,10 @@ class Room extends Component {
         videoId = videoUrl.split('?')[1].split('v=')[1].split('&')[0];
       }
 
-      this.state.socket.emit('change_video', { videoId: videoId });
+      this.state.socket.emit('change_video', {
+        videoId: videoId,
+        displayName: this.props.displayName
+      });
       this.changeVideo(videoId);
       e.target.videoUrl.value = '';
     });
@@ -144,7 +147,7 @@ class Room extends Component {
         message: message,
         displayName: displayName,
         emoji: this.state.emoji,
-        selfSend: false
+        sendOrigin: 2
       });
 
       // push the message to the state store
@@ -156,7 +159,7 @@ class Room extends Component {
         message: message,
         displayName: displayName,
         emoji: this.state.emoji,
-        selfSend: true
+        sendOrigin: 1
       });
       this.setState({ messages: messages });
 
@@ -191,7 +194,7 @@ class Room extends Component {
 
       // randomly generate an emoji for this user
       const emojiList = ['heart', 'poop', 'money-bill-alt',
-        'money-bill-alt', 'hat-wizard', 'graduation-cap', 'gamepad', 'award', 'bomb', 'bug'];
+        'money-bill-alt', 'hat-wizard', 'graduation-cap', 'gamepad', 'award', 'bomb', 'bug', 'ad'];
       const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
       this.setState({ emoji: emoji });
     });
@@ -276,7 +279,7 @@ class Room extends Component {
         message: data.message,
         displayName: data.displayName,
         emoji: data.emoji,
-        selfSend: data.selfSend,
+        sendOrigin: data.sendOrigin,
       });
       this.setState({ messages: messages });
 
@@ -345,7 +348,10 @@ class Room extends Component {
    * handler for clicking a history item
    */
   handleClickHistory(videoId) {
-    this.state.socket.emit('change_video', { videoId: videoId });
+    this.state.socket.emit('change_video', {
+      videoId: videoId,
+      displayName: this.props.displayName
+    });
     this.changeVideo(videoId);
     // close the modal
     const modal = document.querySelector(`.modal#history`);
@@ -389,7 +395,6 @@ class Room extends Component {
     this.addEventListeners();
 
     // send the sync signal
-    console.log(this.state.socket.id);
     this.state.socket.emit('get_status', { id: this.state.socket.id });
   }
 
@@ -522,7 +527,7 @@ class Room extends Component {
                     message={message.message}
                     displayName={message.displayName}
                     emoji={message.emoji}
-                    selfSend={message.selfSend}
+                    sendOrigin={message.sendOrigin}
                   />
                 )
               })}

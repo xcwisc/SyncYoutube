@@ -29,6 +29,14 @@ module.exports.listen = (app) => {
 
       // updateNameList
       updateNameList(room, socket);
+
+      // send a system message to the chat
+      socket.nsp.to(room).emit('chat', {
+        message: `${displayName} joins the room`,
+        displayName: `SyncYoutube@${room}`,
+        emoji: 'cog',
+        sendOrigin: 0
+      });
     });
 
     socket.on('get_status', (data) => {
@@ -88,6 +96,14 @@ module.exports.listen = (app) => {
       socket.broadcast.to(room).emit('change_video', {
         videoId: data.videoId
       });
+
+      // send a system message to the chat
+      socket.nsp.to(room).emit('chat', {
+        message: `${data.displayName} changes the video`,
+        displayName: `SyncYoutube@${room}`,
+        emoji: 'cog',
+        sendOrigin: 0
+      });
     });
 
     socket.on('chat', (data) => {
@@ -96,7 +112,7 @@ module.exports.listen = (app) => {
         message: data.message,
         displayName: data.displayName,
         emoji: data.emoji,
-        selfSend: data.selfSend
+        sendOrigin: data.sendOrigin
       });
     });
 
@@ -106,6 +122,14 @@ module.exports.listen = (app) => {
       const user = `${id}.${displayName}`;
       client.lrem(room, 1, user);
       updateNameList(room, socket);
+
+      // send a system message to the chat
+      socket.nsp.to(room).emit('chat', {
+        message: `${displayName} leaves the room`,
+        displayName: `SyncYoutube@${room}`,
+        emoji: 'cog',
+        sendOrigin: 0
+      });
     });
   });
 }
