@@ -40,6 +40,7 @@ class App extends Component {
     this.logoutUser = this.logoutUser.bind(this);
     this.handleJoinFormChange = this.handleJoinFormChange.bind(this);
     this.handleJoinFormSubmit = this.handleJoinFormSubmit.bind(this);
+    this.handleChangePassword = this.handleChangePassword.bind(this);
     this.leaveRoom = this.leaveRoom.bind(this);
   }
 
@@ -70,7 +71,7 @@ class App extends Component {
         })
         console.log(res.data.data);
       })
-      .catch((err) => { console.log(err); });
+      .catch((err) => { console.error(err); });
   }
 
   // clear all the state related to the form
@@ -117,7 +118,7 @@ class App extends Component {
       this.getUserStatus();
       console.log(res.data);
     }).catch((err) => {
-      console.log(err);
+      console.error(err);
     });
   }
 
@@ -125,25 +126,50 @@ class App extends Component {
   // set redirectToRoom to redirect to a room
   handleJoinFormSubmit(event) {
     event.preventDefault();
-    const newState = this.state.roomInfo;
-    newState.redirectToRoom = true;
-    this.setState(newState);
-    // const url = `http://localhost:8080/api/v1/rooms/${this.state.roomName}`;
-    // let confirmed;
-    // axios.get(url).then((res) => {
-    //   if (res.status === 404) {
-    //     confirmed = window.confirm(`Do you want to create a room named ${this.state.roomName}?`);
-    //   }
-    //   else {
-    //     confirmed = window.confirm(`Do you want to join room ${this.state.roomName} with ${res.data.data.len} other people?`);
-    //   }
 
-    //   if (confirmed) {
-    //     const newState = this.state.roomInfo;
-    //     newState.redirectToRoom = true;
-    //     this.setState(newState);
-    //   }
-    // })
+    const varifyUrl = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/v1/rooms/password/${this.state.roomName}`;
+    axios.get(varifyUrl).then((res) => {
+      if (res.status === 200) {
+        if (res.data.data.hasPassword === false) {
+          // no password is set
+          const newState = this.state.roomInfo;
+          newState.redirectToRoom = true;
+          this.setState(newState);
+        } else {
+          // there is a password
+          let password = window.prompt(`Enter the password for ${this.state.roomName}`);
+          if (password === null) {
+            return;
+          }
+          const loginUrl = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/v1/rooms/login/${this.state.roomName}`;
+          axios.post(loginUrl, { password: password })
+            .then((res) => {
+              if (res.data.data.logedIn === true) {
+                const newState = this.state.roomInfo;
+                newState.redirectToRoom = true;
+                this.setState(newState);
+              } else {
+                window.alert(`Wrong password for ${this.state.roomName}`);
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+      }
+      else {
+        window.alert(`Cannot join ${this.state.roomName}`);
+      }
+    })
+  }
+
+  // handle a user change current room's password
+  handleChangePassword(password) {
+    const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/v1/rooms/password/${this.state.roomName}`;
+    axios.post(url, { password: password })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   // when a user leaves a room, clear out the state used for '/join' route
@@ -234,6 +260,7 @@ class App extends Component {
                   isAuthenticated={this.state.isAuthenticated}
                   roomName={this.state.roomInfo.roomName}
                   displayName={this.state.roomInfo.displayName}
+                  handleChangePassword={this.handleChangePassword}
                   leaveRoom={this.leaveRoom}
                 />)} />
             </Switch>

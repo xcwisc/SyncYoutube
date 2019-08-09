@@ -20,8 +20,7 @@
 - [x] Bind emoji with users
 - [x] Add watch history
 - [x] Flash system messages
-- [ ] Differentiate creating a room and joining a room
-- [ ] Add password when joining a room
+- [x] Add password when joining a room
 
 
 ### TODOS (future version)

@@ -3,9 +3,9 @@ import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const JoinForm = (props) => {
-  // if (!props.isAuthenticated) {
-  //   return <Redirect to='/login' />
-  // }
+  if (!props.isAuthenticated) {
+    return <Redirect to='/login' />
+  }
   if (props.redirectToRoom) {
     return <Redirect to='/room' />
   }

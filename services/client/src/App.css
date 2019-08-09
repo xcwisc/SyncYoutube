@@ -32,6 +32,11 @@ iframe {
   background-color: #cccccc;
 }
 
+.password-btn {
+  margin-left: 8px;
+  margin-top: 6px;
+}
+
 /* message style */
 .message {
   background-color: #cccccc;

@@ -25,7 +25,7 @@ module.exports.listen = (app) => {
 
       // add the client to redis
       const user = `${id}.${displayName}`;
-      client.rpush(room, user);
+      client.rpush(`roomId.${room}`, user);
 
       // updateNameList
       updateNameList(room, socket);
@@ -41,13 +41,13 @@ module.exports.listen = (app) => {
 
     socket.on('get_status', (data) => {
       // sync with other users in the room when join
-      client.llen(room, (err, res) => {
+      client.llen(`roomId.${room}`, (err, res) => {
         if (err) {
           return;
         }
         console.log(res);
         if (res > 1) {
-          client.lindex(room, 0, (err, res) => {
+          client.lindex(`roomId.${room}`, 0, (err, res) => {
             if (err) {
               return;
             }
@@ -120,7 +120,12 @@ module.exports.listen = (app) => {
       console.log('A user disconnected');
       socket.leave(room);
       const user = `${id}.${displayName}`;
-      client.lrem(room, 1, user);
+      client.lrem(`roomId.${room}`, 1, user);
+      client.llen(`roomId.${room}`, (err, reply) => {
+        if (!err && reply === 0) {
+          client.del(`roomPassword.${room}`);
+        }
+      })
       updateNameList(room, socket);
 
       // send a system message to the chat
@@ -141,7 +146,7 @@ module.exports.listen = (app) => {
  */
 const updateNameList = (room, socket) => {
   // console.log(`data in socket server${Object.keys(socket.nsp.connected)}`);
-  client.lrange(room, 0, -1, (err, res) => {
+  client.lrange(`roomId.${room}`, 0, -1, (err, res) => {
     if (err) {
       return;
     }

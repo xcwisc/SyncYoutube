@@ -15,7 +15,7 @@ const Modal = (props) => {
         </button> :
         <button className="button is-link is-outlined"
           onClick={(e) => handleModalBtnClick(e, props.modalId)}
-          style={{ float: 'right' }}>{props.modalTitle}
+          style={{ float: 'right', marginTop: "6px" }}>{props.modalTitle}
         </button>
       }
 

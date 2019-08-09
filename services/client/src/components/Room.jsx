@@ -35,16 +35,16 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    // if (this.props.isAuthenticated && this.props.roomName !== '') {
-    // set up socket.io client
-    this.makeSocketConnection();
+    if (this.props.isAuthenticated && this.props.roomName !== '') {
+      // set up socket.io client
+      this.makeSocketConnection();
 
-    // listen to route change indicating that a user has left
-    let unListen = this.props.history.listen((location, action) => {
-      this.leaveRoom(location);
-    });
-    this.setState({ unListen: unListen });
-    // }
+      // listen to route change indicating that a user has left
+      let unListen = this.props.history.listen((location, action) => {
+        this.leaveRoom(location);
+      });
+      this.setState({ unListen: unListen });
+    }
   }
 
   componentWillUnmount() {
@@ -81,21 +81,30 @@ class Room extends Component {
    * helper method that add event listeners to buttons and progress bar
    */
   addEventListeners() {
-    const btn = document.querySelector('.control-btn');
-    btn.addEventListener('click', () => {
-      if (btn.id === 'play') {
+    const controlBtn = document.querySelector('.control-btn');
+    controlBtn.addEventListener('click', () => {
+      if (controlBtn.id === 'play') {
         this.state.socket.emit('play_video', {
           time: this.state.player.getCurrentTime()
         });
         this.state.player.playVideo();
       }
-      else if (btn.id === 'pause') {
+      else if (controlBtn.id === 'pause') {
         this.state.socket.emit('pause_video', {
           time: this.state.player.getCurrentTime()
         });
         this.state.player.pauseVideo();
       }
     });
+
+    const passwordBtn = document.querySelector('.password-btn');
+    passwordBtn.addEventListener('click', () => {
+      let password = window.prompt(`Set the password for ${this.props.roomName}`);
+      if (password === null) {
+        return;
+      }
+      this.props.handleChangePassword(password);
+    })
 
     const progressBar = document.querySelector('.progress');
     progressBar.addEventListener('click', (e) => {
@@ -427,16 +436,22 @@ class Room extends Component {
         controls: 0,
       }
     };
-    // if (!this.props.isAuthenticated) {
-    //   return <Redirect to='/login' />
-    // } else if (this.props.roomName === '') {
-    //   return <Redirect to='/join' />
-    // }
+    if (!this.props.isAuthenticated) {
+      return <Redirect to='/login' />
+    } else if (this.props.roomName === '') {
+      return <Redirect to='/join' />
+    }
     return (
       <div>
         <div className="columns">
           <div className="column is-9">
             <h2 className="title is-2">Room: {this.props.roomName}
+              <button className="button is-link is-outlined password-btn"
+                title="Set a password for this room">
+                <span className="icon is-small">
+                  <i className="fas fa-key"></i>
+                </span>
+              </button>
               <Modal modalTitle="People in the room" modalId="people">
                 <table className="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
                   <thead>
