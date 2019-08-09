@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const Home = (props) => {
   if (!props.isAuthenticated) {
@@ -14,4 +15,7 @@ const Home = (props) => {
   )
 };
 
+Home.prototype = {
+  isAuthenticated: PropTypes.bool.isRequired
+}
 export default Home;

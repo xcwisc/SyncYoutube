@@ -25,21 +25,29 @@ module.exports.listen = (app) => {
 
       // add the client to redis
       const user = `${id}.${displayName}`;
-      client.rpush(room, user);
+      client.rpush(`roomId.${room}`, user);
 
       // updateNameList
       updateNameList(room, socket);
+
+      // send a system message to the chat
+      socket.nsp.to(room).emit('chat', {
+        message: `${displayName} joins the room`,
+        displayName: `SyncYoutube@${room}`,
+        emoji: 'cog',
+        sendOrigin: 0
+      });
     });
 
     socket.on('get_status', (data) => {
       // sync with other users in the room when join
-      client.llen(room, (err, res) => {
+      client.llen(`roomId.${room}`, (err, res) => {
         if (err) {
           return;
         }
         console.log(res);
         if (res > 1) {
-          client.lindex(room, 0, (err, res) => {
+          client.lindex(`roomId.${room}`, 0, (err, res) => {
             if (err) {
               return;
             }
@@ -88,13 +96,23 @@ module.exports.listen = (app) => {
       socket.broadcast.to(room).emit('change_video', {
         videoId: data.videoId
       });
+
+      // send a system message to the chat
+      socket.nsp.to(room).emit('chat', {
+        message: `${data.displayName} changes the video`,
+        displayName: `SyncYoutube@${room}`,
+        emoji: 'cog',
+        sendOrigin: 0
+      });
     });
 
     socket.on('chat', (data) => {
-      console.log('chat message received');
-      socket.nsp.to(room).emit('chat', {
+      // console.log('chat message received');
+      socket.broadcast.to(room).emit('chat', {
         message: data.message,
-        displayName: data.displayName
+        displayName: data.displayName,
+        emoji: data.emoji,
+        sendOrigin: data.sendOrigin
       });
     });
 
@@ -102,8 +120,21 @@ module.exports.listen = (app) => {
       console.log('A user disconnected');
       socket.leave(room);
       const user = `${id}.${displayName}`;
-      client.lrem(room, 1, user);
+      client.lrem(`roomId.${room}`, 1, user);
+      client.llen(`roomId.${room}`, (err, reply) => {
+        if (!err && reply === 0) {
+          client.del(`roomPassword.${room}`);
+        }
+      })
       updateNameList(room, socket);
+
+      // send a system message to the chat
+      socket.nsp.to(room).emit('chat', {
+        message: `${displayName} leaves the room`,
+        displayName: `SyncYoutube@${room}`,
+        emoji: 'cog',
+        sendOrigin: 0
+      });
     });
   });
 }
@@ -114,7 +145,8 @@ module.exports.listen = (app) => {
  * @param {*} socket 
  */
 const updateNameList = (room, socket) => {
-  client.lrange(room, 0, -1, (err, res) => {
+  // console.log(`data in socket server${Object.keys(socket.nsp.connected)}`);
+  client.lrange(`roomId.${room}`, 0, -1, (err, res) => {
     if (err) {
       return;
     }

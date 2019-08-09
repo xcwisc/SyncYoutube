@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const UserStatus = (props) => {
   if (!props.isAuthenticated) {
@@ -20,4 +21,14 @@ const UserStatus = (props) => {
   )
 }
 
+UserStatus.prototype = {
+  isAuthenticated: PropTypes.bool.isRequired,
+  userInfo: PropTypes.shape({
+    username: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+    admin: PropTypes.string.isRequired,
+    active: PropTypes.string.isRequired
+  }).isRequired
+}
 export default UserStatus;

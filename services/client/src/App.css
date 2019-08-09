@@ -8,12 +8,8 @@ hr {
 }
 
 iframe {
-  width: 100vh;
-  height: calc(100vh / 2.25);
-}
-
-::-webkit-scrollbar {
-  Transform: rotate(180deg);
+  width: 106vh;
+  height: 54vh;
 }
 
 .input {
@@ -23,12 +19,11 @@ iframe {
 /* Room style */
 .chat-room {
   overflow: auto;
-  height: 376px;
-  max-width: 308px;
-  transform: rotate(180deg);
-  background-color: #909090;
+  height: 424px;
+  background-color: #b1b1b1;
   border-radius: 0.25em;
   margin-top: 6px;
+  border: 2px solid #797878;
 }
 
 .control-btn {
@@ -37,6 +32,42 @@ iframe {
   background-color: #cccccc;
 }
 
-.media {
-  transform: rotate(180deg);
+.password-btn {
+  margin-left: 8px;
+  margin-top: 6px;
+}
+
+/* message style */
+.message {
+  background-color: #cccccc;
+  border-radius: 5px;
+}
+
+.self-send {
+  background-color: #6b948d;
+  color: #e4d2d2;
+}
+
+.system-send {
+  background-color: #7687a0;
+  color: #e4d2d2;
+}
+
+.message:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.message::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* watch history style */
+.history-video-author {
+  font-size: small;
+}
+
+.history-item:hover {
+  cursor: pointer;
 }

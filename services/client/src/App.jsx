@@ -15,8 +15,6 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      title: 'SyncYoutube',
-      users: [],
       userInfo: {
         username: '',
         email: '',
@@ -27,7 +25,7 @@ class App extends Component {
       formData: {
         username: '',
         email: '',
-        password: ''
+        password: '',
       },
       roomInfo: {
         roomName: '',
@@ -36,24 +34,19 @@ class App extends Component {
       },
       isAuthenticated: false,
     };
-    // this.addUser = this.addUser.bind(this);
-    // this.handleAddUserFormInput = this.handleAddUserFormInput.bind(this);
+
     this.handleUserFormSubmit = this.handleUserFormSubmit.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
     this.logoutUser = this.logoutUser.bind(this);
     this.handleJoinFormChange = this.handleJoinFormChange.bind(this);
     this.handleJoinFormSubmit = this.handleJoinFormSubmit.bind(this);
+    this.handleChangePassword = this.handleChangePassword.bind(this);
+    this.leaveRoom = this.leaveRoom.bind(this);
   }
 
   componentDidMount() {
-    // this.getUsers();
+
   }
-  // get all the users and update the user list
-  // getUsers() {
-  //   axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
-  //     .then((res) => { this.setState({ users: res.data.data.users }); })
-  //     .catch((err) => { console.log(err); });
-  // }
 
   // get a logedin user's info
   getUserStatus() {
@@ -78,7 +71,7 @@ class App extends Component {
         })
         console.log(res.data.data);
       })
-      .catch((err) => { console.log(err); });
+      .catch((err) => { console.error(err); });
   }
 
   // clear all the state related to the form
@@ -89,30 +82,6 @@ class App extends Component {
       email: ''
     });
   };
-
-  // add a user at the home route
-  // addUser(event) {
-  //   event.preventDefault();
-  //   const data = {
-  //     username: this.state.username,
-  //     email: this.state.email
-  //   };
-  //   axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
-  //     .then((res) => {
-  //       // update the userList
-  //       this.getUsers();
-  //       // clear out the form
-  //       this.setState({ username: '', email: '' });
-  //     })
-  //     .catch((err) => console.log(err));
-  // }
-
-  // bind the form with state on the main route that add a user
-  // handleAddUserFormInput(event) {
-  //   const newState = {};
-  //   newState[event.target.name] = event.target.value;
-  //   this.setState(newState);
-  // }
 
   // bind the form with state on '/register' and '/login'
   handleFormChange(event) {
@@ -147,18 +116,71 @@ class App extends Component {
       window.localStorage.setItem('authToken', res.data.auth_token);
       this.setState({ isAuthenticated: true });
       this.getUserStatus();
-      this.getUsers();
       console.log(res.data);
     }).catch((err) => {
-      console.log(err);
+      console.error(err);
     });
   }
 
+  // handle the form on '/join'
+  // set redirectToRoom to redirect to a room
   handleJoinFormSubmit(event) {
     event.preventDefault();
-    const newState = this.state.roomInfo;
-    newState.redirectToRoom = true;
-    this.setState(newState);
+
+    const varifyUrl = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/v1/rooms/password/${this.state.roomName}`;
+    axios.get(varifyUrl).then((res) => {
+      if (res.status === 200) {
+        if (res.data.data.hasPassword === false) {
+          // no password is set
+          const newState = this.state.roomInfo;
+          newState.redirectToRoom = true;
+          this.setState(newState);
+        } else {
+          // there is a password
+          let password = window.prompt(`Enter the password for ${this.state.roomName}`);
+          if (password === null) {
+            return;
+          }
+          const loginUrl = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/v1/rooms/login/${this.state.roomName}`;
+          axios.post(loginUrl, { password: password })
+            .then((res) => {
+              if (res.data.data.logedIn === true) {
+                const newState = this.state.roomInfo;
+                newState.redirectToRoom = true;
+                this.setState(newState);
+              } else {
+                window.alert(`Wrong password for ${this.state.roomName}`);
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+      }
+      else {
+        window.alert(`Cannot join ${this.state.roomName}`);
+      }
+    })
+  }
+
+  // handle a user change current room's password
+  handleChangePassword(password) {
+    const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/v1/rooms/password/${this.state.roomName}`;
+    axios.post(url, { password: password })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  // when a user leaves a room, clear out the state used for '/join' route
+  leaveRoom() {
+    this.setState({
+      roomInfo: {
+        roomName: '',
+        displayName: '',
+        redirectToRoom: false,
+      }
+    });
   }
 
   // handle '/logout'
@@ -179,8 +201,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <Navbar title={this.state.title}
-          isAuthenticated={this.state.isAuthenticated} />
+        <Navbar isAuthenticated={this.state.isAuthenticated} />
         <section className="section">
           <div className="container">
             <div className="columns">
@@ -211,7 +232,6 @@ class App extends Component {
                   <Route exact path='/logout' render={() => (
                     <Logout
                       logoutUser={this.logoutUser}
-                      isAuthenticated={this.state.isAuthenticated}
                     />
                   )} />
                   <Route exact path='/status' render={() => (
@@ -240,6 +260,8 @@ class App extends Component {
                   isAuthenticated={this.state.isAuthenticated}
                   roomName={this.state.roomInfo.roomName}
                   displayName={this.state.roomInfo.displayName}
+                  handleChangePassword={this.handleChangePassword}
+                  leaveRoom={this.leaveRoom}
                 />)} />
             </Switch>
           </div>

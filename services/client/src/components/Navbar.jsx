@@ -5,7 +5,7 @@ const Navbar = (props) => (
   <nav className="navbar is-dark" role="navigation" aria-label="main navigation">
     <section className="container">
       <div className="navbar-brand">
-        <strong className="navbar-item">{props.title}</strong>
+        <strong className="navbar-item">SyncYoutube</strong>
         <span
           className="navbar-toggle navbar-burger"
           onClick={() => {
