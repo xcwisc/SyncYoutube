@@ -11,7 +11,7 @@ const JoinForm = (props) => {
   }
   return (
     <div>
-      <h1 className='title is-1'>Join a room</h1>
+      <h1 className='title is-1'>Create or join a room</h1>
       <hr /><br />
       <form onSubmit={(event) => props.handleJoinFormSubmit(event)}>
         <div className='field'>
@@ -19,7 +19,7 @@ const JoinForm = (props) => {
             name="roomName"
             className="input is-medium"
             type="text"
-            placeholder="Enter a room to join"
+            placeholder="Create a roomId or enter an existing roomId"
             required
             value={props.roomName}
             onChange={props.handleJoinFormChange}
