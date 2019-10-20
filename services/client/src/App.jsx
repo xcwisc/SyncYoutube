@@ -3,7 +3,6 @@ import { Route, Switch } from "react-router-dom";
 import axios from 'axios';
 
 import './App.css';
-import Home from './components/Home';
 import Navbar from './components/Navbar';
 import Form from './components/Form';
 import Logout from './components/Logout';
@@ -44,10 +43,6 @@ class App extends Component {
     this.leaveRoom = this.leaveRoom.bind(this);
   }
 
-  componentDidMount() {
-
-  }
-
   // get a logedin user's info
   getUserStatus() {
     const option = {
@@ -67,7 +62,8 @@ class App extends Component {
             username: res.data.data.username,
             admin: res.data.data.admin.toString(),
             active: res.data.data.active.toString(),
-          }
+          },
+          roomInfo: { ...this.state.roomInfo, displayName: res.data.data.username }
         })
         console.log(res.data.data);
       })
@@ -209,7 +205,15 @@ class App extends Component {
                 <br />
                 <Switch>
                   <Route exact path='/' render={() => (
-                    <Home isAuthenticated={this.state.isAuthenticated} />
+                    <JoinForm
+                      isAuthenticated={this.state.isAuthenticated}
+                      username={this.state.userInfo.username}
+                      roomName={this.state.roomInfo.roomName}
+                      displayName={this.state.roomInfo.displayName}
+                      redirectToRoom={this.state.roomInfo.redirectToRoom}
+                      handleJoinFormChange={this.handleJoinFormChange}
+                      handleJoinFormSubmit={this.handleJoinFormSubmit}
+                    />
                   )} />
                   <Route exact path='/register' render={() => (
                     <Form
@@ -238,17 +242,6 @@ class App extends Component {
                     <UserStatus
                       isAuthenticated={this.state.isAuthenticated}
                       userInfo={this.state.userInfo}
-                    />
-                  )} />
-                  <Route exact path='/join' render={() => (
-                    <JoinForm
-                      isAuthenticated={this.state.isAuthenticated}
-                      username={this.state.userInfo.username}
-                      roomName={this.state.roomInfo.roomName}
-                      displayName={this.state.roomInfo.displayName}
-                      redirectToRoom={this.state.roomInfo.redirectToRoom}
-                      handleJoinFormChange={this.handleJoinFormChange}
-                      handleJoinFormSubmit={this.handleJoinFormSubmit}
                     />
                   )} />
                 </Switch>

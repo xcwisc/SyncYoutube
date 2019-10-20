@@ -2,6 +2,25 @@
 
 [![Build Status](https://travis-ci.com/xcwisc/SyncYoutube.svg?branch=master)](https://travis-ci.com/xcwisc/SyncYoutube.svg?branch=master)
 
+## To run locally
+To run locally, you need docker version 18.06.0+ installed on your machine. Once you have it installed, run this command:
+```bash
+$ docker-compose build
+$ docker-compose up -d
+$ export SECRET_KEY = <YOUR_SECRET_KEY>
+$ export REACT_APP_USERS_SERVICE_URL=http://localhost/
+```
+Navigate to http://localhost/
+
+## To deploy on a server
+You need docker version 18.06.0+ installed on your server. Once you have it installed, run this command:
+```bash
+$ docker-compose -f docker-compose-prod.yml build
+$ docker-compose -f docker-compose-prod.yml up -d
+$ export SECRET_KEY = <YOUR_SECRET_KEY>
+$ export REACT_APP_USERS_SERVICE_URL = <SERVER_IP>
+```
+
 ## TODOS 
 
 ### v1.1

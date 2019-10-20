@@ -39,7 +39,7 @@ const Form = (props) => {
           <input
             name="password"
             className="input is-medium"
-            type="text"
+            type="password"
             placeholder="Enter your password"
             required
             value={props.formData.password}
